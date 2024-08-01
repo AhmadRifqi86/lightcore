@@ -682,30 +682,31 @@ func HandleInitialRegistration(ue *context.AmfUe, anType models.AccessType) erro
 	if amfSelf.Locality != "" {
 		param.PreferredLocality = optional.NewString(amfSelf.Locality)
 	}
-
-	for {
-		resp, err := consumer.SendSearchNFInstances(amfSelf.NrfUri, models.NfType_PCF, models.NfType_AMF, &param)
-		if err != nil {
-			ue.GmmLog.Error("AMF can not select an PCF by NRF")
-		} else {
-			// select the first PCF, TODO: select base on other info
-			var pcfUri string
-			for _, nfProfile := range resp.NfInstances {
-				pcfUri = util.SearchNFServiceUri(nfProfile, models.ServiceName_NPCF_AM_POLICY_CONTROL,
-					models.NfServiceStatus_REGISTERED)
-				if pcfUri != "" {
-					ue.PcfId = nfProfile.NfInstanceId
-					break
-				}
-			}
-			if ue.PcfUri = pcfUri; ue.PcfUri == "" {
-				ue.GmmLog.Error("AMF can not select an PCF by NRF")
-			} else {
-				break
-			}
-		}
-		time.Sleep(500 * time.Millisecond) // sleep a while when search NF Instance fail
-	}
+         // disini kah ganti nya?
+        //bagian untuk parse datanya disini
+//	for {   //Request ke NRF untuk URI PCF, bagian ini comment, langsung ganti pake code producer
+//		resp, err := consumer.SendSearchNFInstances(amfSelf.NrfUri, models.NfType_PCF, models.NfType_AMF, &param)
+//		if err != nil {
+//			ue.GmmLog.Error("AMF can not select an PCF by NRF")
+//		} else {
+//			// select the first PCF, TODO: select base on other info
+//			var pcfUri string
+//			for _, nfProfile := range resp.NfInstances {
+//				pcfUri = util.SearchNFServiceUri(nfProfile, models.ServiceName_NPCF_AM_POLICY_CONTROL,
+//					models.NfServiceStatus_REGISTERED)
+//				if pcfUri != "" {
+//					ue.PcfId = nfProfile.NfInstanceId
+//					break
+//				}
+//			}
+//			if ue.PcfUri = pcfUri; ue.PcfUri == "" {
+//				ue.GmmLog.Error("AMF can not select an PCF by NRF")
+//			} else {
+//				break
+//			}
+//		}
+//		time.Sleep(500 * time.Millisecond) // sleep a while when search NF Instance fail
+//	}
 
 	problemDetails, err := consumer.AMPolicyControlCreate(ue, anType)
 	if problemDetails != nil {

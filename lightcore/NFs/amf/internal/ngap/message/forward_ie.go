@@ -119,7 +119,7 @@ func BuildIEMobilityRestrictionList(ue *context.AmfUe) ngapType.MobilityRestrict
 			item.RATRestrictionInformation = ngapConvert.RATRestrictionInformationToNgap(ratType)
 			ratRestrictions.List = append(ratRestrictions.List, item)
 		}
-	}
+	} //tambahin else?
 
 	if ue.AccessAndMobilitySubscriptionData != nil && len(ue.AccessAndMobilitySubscriptionData.ForbiddenAreas) > 0 {
 		mobilityRestrictionList.ForbiddenAreaInformation = new(ngapType.ForbiddenAreaInformation)
@@ -171,6 +171,91 @@ func BuildIEMobilityRestrictionList(ue *context.AmfUe) ngapType.MobilityRestrict
 	}
 	return mobilityRestrictionList
 }
+
+// func BuildIEMobilityRestrictionList(ue *context.AmfUe) ngapType.MobilityRestrictionList {
+// 	mobilityRestrictionList := ngapType.MobilityRestrictionList{}
+
+// 	// Ensure ue and necessary fields are not nil
+// 	if ue == nil {
+// 		logger.NgapLog.Errorf("[Error] AmfUe is nil")
+// 		return mobilityRestrictionList
+// 	}
+
+// 	if ue.PlmnId == nil {
+// 		logger.NgapLog.Errorf("[Error] ue.PlmnId is nil")
+// 		return mobilityRestrictionList
+// 	}
+
+// 	mobilityRestrictionList.ServingPLMN = ngapConvert.PlmnIdToNgap(ue.PlmnId)
+
+// 	if ue.AccessAndMobilitySubscriptionData != nil && len(ue.AccessAndMobilitySubscriptionData.RatRestrictions) > 0 {
+// 		mobilityRestrictionList.RATRestrictions = new(ngapType.RATRestrictions)
+// 		ratRestrictions := mobilityRestrictionList.RATRestrictions
+// 		for _, ratType := range ue.AccessAndMobilitySubscriptionData.RatRestrictions {
+// 			item := ngapType.RATRestrictionsItem{}
+// 			item.PLMNIdentity = ngapConvert.PlmnIdToNgap(ue.PlmnId)
+// 			item.RATRestrictionInformation = ngapConvert.RATRestrictionInformationToNgap(ratType)
+// 			ratRestrictions.List = append(ratRestrictions.List, item)
+// 		}
+// 	} else {
+// 		logger.NgapLog.Infof("[Info] RATRestrictions not set or empty")
+// 	}
+
+// 	if ue.AccessAndMobilitySubscriptionData != nil && len(ue.AccessAndMobilitySubscriptionData.ForbiddenAreas) > 0 {
+// 		mobilityRestrictionList.ForbiddenAreaInformation = new(ngapType.ForbiddenAreaInformation)
+// 		forbiddenAreaInformation := mobilityRestrictionList.ForbiddenAreaInformation
+// 		for _, info := range ue.AccessAndMobilitySubscriptionData.ForbiddenAreas {
+// 			item := ngapType.ForbiddenAreaInformationItem{}
+// 			item.PLMNIdentity = ngapConvert.PlmnIdToNgap(ue.PlmnId)
+// 			for _, tac := range info.Tacs {
+// 				tacBytes, err := hex.DecodeString(tac)
+// 				if err != nil {
+// 					logger.NgapLog.Errorf("[Error] DecodeString tac error: %+v", err)
+// 					continue
+// 				}
+// 				tacNgap := ngapType.TAC{}
+// 				tacNgap.Value = tacBytes
+// 				item.ForbiddenTACs.List = append(item.ForbiddenTACs.List, tacNgap)
+// 			}
+// 			forbiddenAreaInformation.List = append(forbiddenAreaInformation.List, item)
+// 		}
+// 	} else {
+// 		logger.NgapLog.Infof("[Info] ForbiddenAreaInformation not set or empty")
+// 	}
+
+// 	if ue.AmPolicyAssociation != nil && ue.AmPolicyAssociation.ServAreaRes != nil {
+// 		mobilityRestrictionList.ServiceAreaInformation = new(ngapType.ServiceAreaInformation)
+// 		serviceAreaInformation := mobilityRestrictionList.ServiceAreaInformation
+
+// 		item := ngapType.ServiceAreaInformationItem{}
+// 		item.PLMNIdentity = ngapConvert.PlmnIdToNgap(ue.PlmnId)
+// 		var tacList []ngapType.TAC
+// 		for _, area := range ue.AmPolicyAssociation.ServAreaRes.Areas {
+// 			for _, tac := range area.Tacs {
+// 				tacBytes, err := hex.DecodeString(tac)
+// 				if err != nil {
+// 					logger.NgapLog.Errorf("[Error] DecodeString tac error: %+v", err)
+// 					continue
+// 				}
+// 				tacNgap := ngapType.TAC{}
+// 				tacNgap.Value = tacBytes
+// 				tacList = append(tacList, tacNgap)
+// 			}
+// 		}
+// 		if ue.AmPolicyAssociation.ServAreaRes.RestrictionType == models.RestrictionType_ALLOWED_AREAS {
+// 			item.AllowedTACs = new(ngapType.AllowedTACs)
+// 			item.AllowedTACs.List = append(item.AllowedTACs.List, tacList...)
+// 		} else {
+// 			item.NotAllowedTACs = new(ngapType.NotAllowedTACs)
+// 			item.NotAllowedTACs.List = append(item.NotAllowedTACs.List, tacList...)
+// 		}
+// 		serviceAreaInformation.List = append(serviceAreaInformation.List, item)
+// 	} else {
+// 		logger.NgapLog.Infof("[Info] ServiceAreaInformation not set or empty")
+// 	}
+
+// 	return mobilityRestrictionList
+// }
 
 func BuildUnavailableGUAMIList(guamiList []models.Guami) (unavailableGUAMIList ngapType.UnavailableGUAMIList) {
 	for _, guami := range guamiList {

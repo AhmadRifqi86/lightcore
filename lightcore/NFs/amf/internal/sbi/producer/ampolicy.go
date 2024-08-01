@@ -8,16 +8,16 @@ import (
 
 	"github.com/mohae/deepcopy"
 
-	"github.com/free5gc/openapi"
-	"github.com/free5gc/openapi/models"
 	pcf_context "github.com/free5gc/amf/internal/context"
 	"github.com/free5gc/amf/internal/logger"
 	"github.com/free5gc/amf/internal/sbi/consumer"
 	"github.com/free5gc/amf/internal/util"
-        //"github.com/free5gc/pcf/internal/util"
+	"github.com/free5gc/openapi"
+	"github.com/free5gc/openapi/models"
+
+	//"github.com/free5gc/pcf/internal/util"
 	"github.com/free5gc/util/httpwrapper"
 )
-
 
 // request parser
 func HandleDeletePoliciesPolAssoId(request *httpwrapper.Request) *httpwrapper.Response {
@@ -33,7 +33,6 @@ func HandleDeletePoliciesPolAssoId(request *httpwrapper.Request) *httpwrapper.Re
 	}
 }
 
-//
 func DeletePoliciesPolAssoIdProcedure(polAssoId string) *models.ProblemDetails {
 	ue := pcf_context.GetSelf().PCFUeFindByPolicyId(polAssoId)
 	if ue == nil || ue.AMPolicyData[polAssoId] == nil {
@@ -206,6 +205,7 @@ func HandlePostPolicies(request *httpwrapper.Request) *httpwrapper.Response {
 	return httpwrapper.NewResponse(int(problemDetails.Status), nil, problemDetails)
 }
 
+// Fungsi ini yg nanti di call producer, hapus param polAssoId, atau set polAssoId ke 0
 func PostPoliciesProcedure(polAssoId string,
 	policyAssociationRequest models.PolicyAssociationRequest,
 ) (*models.PolicyAssociation, string, *models.ProblemDetails) {
@@ -233,7 +233,7 @@ func PostPoliciesProcedure(polAssoId string,
 		logger.AmPolicyLog.Errorf("Ue[%s] is not supported in PCF", ue.Supi)
 		return nil, "", &problemDetail
 	}
-	ue.UdrUri = udrUri  //is this needed
+	ue.UdrUri = udrUri //is this needed
 
 	response.Request = deepcopy.Copy(&policyAssociationRequest).(*models.PolicyAssociationRequest)
 	assolId := fmt.Sprintf("%s-%d", ue.Supi, ue.PolAssociationIDGenerator)
@@ -281,7 +281,7 @@ func PostPoliciesProcedure(polAssoId string,
 	locationHeader := util.GetResourceUri(models.ServiceName_NPCF_AM_POLICY_CONTROL, assolId)
 	logger.AmPolicyLog.Tracef("AMPolicy association Id[%s] Create", assolId)
 
-	// if consumer is AMF then subscribe this AMF Status
+	// if consumer is AMF then subscribe this AMF Status, block if ini perlu di comment ga?
 	if policyAssociationRequest.Guami != nil {
 		// if policyAssociationRequest.Guami has been subscribed, then no need to subscribe again
 		needSubscribe := true
@@ -299,7 +299,7 @@ func PostPoliciesProcedure(polAssoId string,
 
 		//if needSubscribe {
 		//	logger.AmPolicyLog.Debugf("Subscribe AMF status change[GUAMI: %+v]", *policyAssociationRequest.Guami)
-                        //line dibawah ini
+		//line dibawah ini
 		//	amfUri := consumer.SendNFInstancesAMF(pcfSelf.NrfUri, *policyAssociationRequest.Guami, models.ServiceName_NAMF_COMM)
 		//	if amfUri != "" {
 		//		problemDetails, err := consumer.AmfStatusChangeSubscribe(amfUri, []models.Guami{*policyAssociationRequest.Guami})

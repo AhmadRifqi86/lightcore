@@ -1,21 +1,27 @@
 package consumer
+
 //create AM Policy, this file definitely communicate with PCF, this file will be removed
 import (
 	"context"
-	"regexp"
+	"fmt"
+
+	//"net/http"
 
 	amf_context "github.com/free5gc/amf/internal/context"
 	"github.com/free5gc/amf/internal/logger"
+	"github.com/free5gc/amf/internal/sbi/misc"
 	"github.com/free5gc/amf/pkg/factory"
 	"github.com/free5gc/openapi"
 	"github.com/free5gc/openapi/Npcf_AMPolicy"
 	"github.com/free5gc/openapi/models"
+	//"github.com/free5gc/util/httpwrapper"
 )
 
+// Create AMPolicy
 func AMPolicyControlCreate(ue *amf_context.AmfUe, anType models.AccessType) (*models.ProblemDetails, error) {
 	configuration := Npcf_AMPolicy.NewConfiguration()
 	configuration.SetBasePath(ue.PcfUri)
-	client := Npcf_AMPolicy.NewAPIClient(configuration)
+	//client := Npcf_AMPolicy.NewAPIClient(configuration)
 
 	amfSelf := amf_context.GetSelf()
 
@@ -35,52 +41,70 @@ func AMPolicyControlCreate(ue *amf_context.AmfUe, anType models.AccessType) (*mo
 	if ue.AccessAndMobilitySubscriptionData != nil {
 		policyAssociationRequest.Rfsp = ue.AccessAndMobilitySubscriptionData.RfspIndex
 	}
-
-	res, httpResp, localErr := client.DefaultApi.PoliciesPost(context.Background(), policyAssociationRequest)
-	defer func() {
-		if httpResp != nil {
-			if rspCloseErr := httpResp.Body.Close(); rspCloseErr != nil {
-				logger.ConsumerLog.Errorf("PoliciesPost response body cannot close: %+v",
-					rspCloseErr)
-			}
-		}
-	}()
-	if localErr == nil {
-		locationHeader := httpResp.Header.Get("Location")
-		logger.ConsumerLog.Debugf("location header: %+v", locationHeader)
-		ue.AmPolicyUri = locationHeader
-
-		re := regexp.MustCompile("/policies/.*")
-		match := re.FindStringSubmatch(locationHeader)
-
-		ue.PolicyAssociationId = match[0][10:]
-		ue.AmPolicyAssociation = &res
-
-		if res.Triggers != nil {
-			for _, trigger := range res.Triggers {
-				if trigger == models.RequestTrigger_LOC_CH {
-					ue.RequestTriggerLocationChange = true
-				}
-				//if trigger == models.RequestTrigger_PRA_CH {
-				// TODO: Presence Reporting Area handling (TS 23.503 6.1.2.5, TS 23.501 5.6.11)
-				//}
-			}
-		}
-
-		logger.ConsumerLog.Debugf("UE AM Policy Association ID: %s", ue.PolicyAssociationId)
-		logger.ConsumerLog.Debugf("AmPolicyAssociation: %+v", ue.AmPolicyAssociation)
-	} else if httpResp != nil {
-		if httpResp.Status != localErr.Error() {
-			return nil, localErr
-		}
-		problem := localErr.(openapi.GenericOpenAPIError).Model().(models.ProblemDetails)
-		return &problem, nil
-	} else {
-		return nil, openapi.ReportError("server no response")
+	//call producer nya disini?
+	response, locationHeader, problemDetails := misc.PostPoliciesProcedure(policyAssociationRequest)
+	// headers := http.Header{
+	// 	"Location": {locationHeader},
+	// }
+	fmt.Println(locationHeader)
+	if response != nil {
+		return nil, nil
+		//return httpwrapper.NewResponse(http.StatusCreated, headers, response)
+	} else if problemDetails != nil {
+		return problemDetails, nil
+		//return httpwrapper.NewResponse(int(problemDetails.Status), nil, problemDetails)
 	}
+	// problemDetails = &models.ProblemDetails{
+	// 	Status: http.StatusForbidden,
+	// 	Cause:  "UNSPECIFIED",
+	// }
+	// TODO Comment Line below
+	// res, httpResp, localErr := client.DefaultApi.PoliciesPost(context.Background(), policyAssociationRequest)
+	// defer func() {
+	// 	if httpResp != nil {
+	// 		if rspCloseErr := httpResp.Body.Close(); rspCloseErr != nil {
+	// 			logger.ConsumerLog.Errorf("PoliciesPost response body cannot close: %+v",
+	// 				rspCloseErr)
+	// 		}
+	// 	}
+	// }()
+	// if localErr == nil {
+	// 	locationHeader := httpResp.Header.Get("Location")
+	// 	logger.ConsumerLog.Debugf("location header: %+v", locationHeader)
+	// 	ue.AmPolicyUri = locationHeader
+
+	// 	re := regexp.MustCompile("/policies/.*")
+	// 	match := re.FindStringSubmatch(locationHeader)
+
+	// 	ue.PolicyAssociationId = match[0][10:]
+	// 	ue.AmPolicyAssociation = &res
+
+	// 	if res.Triggers != nil {
+	// 		for _, trigger := range res.Triggers {
+	// 			if trigger == models.RequestTrigger_LOC_CH {
+	// 				ue.RequestTriggerLocationChange = true
+	// 			}
+	// 			//if trigger == models.RequestTrigger_PRA_CH {
+	// 			// TODO: Presence Reporting Area handling (TS 23.503 6.1.2.5, TS 23.501 5.6.11)
+	// 			//}
+	// 		}
+	// 	}
+
+	// 	logger.ConsumerLog.Debugf("UE AM Policy Association ID: %s", ue.PolicyAssociationId)
+	// 	logger.ConsumerLog.Debugf("AmPolicyAssociation: %+v", ue.AmPolicyAssociation)
+	// } else if httpResp != nil {
+	// 	if httpResp.Status != localErr.Error() {
+	// 		return nil, localErr
+	// 	}
+	// 	problem := localErr.(openapi.GenericOpenAPIError).Model().(models.ProblemDetails)
+	// 	return &problem, nil
+	// } else {
+	// 	return nil, openapi.ReportError("server no response")
+	//}
 	return nil, nil
 }
 
+// AM Policy Update
 func AMPolicyControlUpdate(ue *amf_context.AmfUe, updateRequest models.PolicyAssociationUpdateRequest) (
 	problemDetails *models.ProblemDetails, err error,
 ) {
@@ -129,6 +153,7 @@ func AMPolicyControlUpdate(ue *amf_context.AmfUe, updateRequest models.PolicyAss
 	return problemDetails, err
 }
 
+// AMPolicy Delete
 func AMPolicyControlDelete(ue *amf_context.AmfUe) (problemDetails *models.ProblemDetails, err error) {
 	configuration := Npcf_AMPolicy.NewConfiguration()
 	configuration.SetBasePath(ue.PcfUri)
