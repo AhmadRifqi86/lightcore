@@ -669,7 +669,7 @@ func HandleInitialRegistration(ue *context.AmfUe, anType models.AccessType) erro
 
 	if ue.ServingAmfChanged || ue.State[models.AccessType_NON_3_GPP_ACCESS].Is(context.Registered) ||
 		!ue.ContextValid {
-		if err := communicateWithUDM(ue, anType); err != nil {
+		if err := communicateWithUDM(ue, anType); err != nil { //disini yg waktu itu error
 			ue.GmmLog.Errorf("communicateWithUDM error: %v", err)
 			gmm_message.SendRegistrationReject(ue.RanUe[anType], nasMessage.Cause5GMMPLMNNotAllowed, "")
 			return errors.Wrap(err, "communicateWithUDM failed")

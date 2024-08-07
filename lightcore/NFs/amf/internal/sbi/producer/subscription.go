@@ -40,7 +40,7 @@ func AMFStatusChangeSubscribeProcedure(subscriptionDataReq models.SubscriptionDa
 			}
 		}
 	}
-
+	//fmt.Println("NEW AMF STATUS SUBSCRIBE")
 	if subscriptionDataRsp.GuamiList != nil {
 		newSubscriptionID := amfSelf.NewAMFStatusSubscription(subscriptionDataReq)
 		locationHeader = subscriptionDataReq.AmfStatusUri + "/" + newSubscriptionID

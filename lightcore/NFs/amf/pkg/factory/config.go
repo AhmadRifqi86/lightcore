@@ -19,26 +19,26 @@ import (
 )
 
 const (
-	AmfDefaultTLSKeyLogPath     = "./log/amfsslkey.log"
-	AmfDefaultCertPemPath       = "./cert/amf.pem"
-	AmfDefaultPrivateKeyPath    = "./cert/amf.key"
-	AmfDefaultConfigPath        = "./config/amfcfg.yaml"
-	AmfSbiDefaultIPv4           = "127.0.0.18"
-	AmfSbiDefaultPort           = 8000
-	AmfSbiDefaultScheme         = "https"
-	AmfDefaultNrfUri            = "https://127.0.0.10:8000"
-	sctpDefaultNumOstreams      = 3
-	sctpDefaultMaxInstreams     = 5
-	sctpDefaultMaxAttempts      = 2
-	sctpDefaultMaxInitTimeout   = 2
-	ngapDefaultPort             = 38412
-	AmfCallbackResUriPrefix     = "/namf-callback/v1"
-	AmfCommResUriPrefix         = "/namf-comm/v1"
-	AmfEvtsResUriPrefix         = "/namf-evts/v1"
-	AmfLocResUriPrefix          = "/namf-loc/v1"
-	AmfMtResUriPrefix           = "/namf-mt/v1"
-	AmfOamResUriPrefix          = "/namf-oam/v1"
-        AmfAMpolicyCtlResUriPrefix  = "/namf-am-policy-control/v1" 
+	AmfDefaultTLSKeyLogPath    = "./log/amfsslkey.log"
+	AmfDefaultCertPemPath      = "./cert/amf.pem"
+	AmfDefaultPrivateKeyPath   = "./cert/amf.key"
+	AmfDefaultConfigPath       = "./config/amfcfg.yaml"
+	AmfSbiDefaultIPv4          = "127.0.0.18"
+	AmfSbiDefaultPort          = 8000
+	AmfSbiDefaultScheme        = "https"
+	AmfDefaultNrfUri           = "https://127.0.0.10:8000"
+	sctpDefaultNumOstreams     = 3
+	sctpDefaultMaxInstreams    = 5
+	sctpDefaultMaxAttempts     = 2
+	sctpDefaultMaxInitTimeout  = 2
+	ngapDefaultPort            = 38412
+	AmfCallbackResUriPrefix    = "/namf-callback/v1"
+	AmfCommResUriPrefix        = "/namf-comm/v1"
+	AmfEvtsResUriPrefix        = "/namf-evts/v1"
+	AmfLocResUriPrefix         = "/namf-loc/v1"
+	AmfMtResUriPrefix          = "/namf-mt/v1"
+	AmfOamResUriPrefix         = "/namf-oam/v1"
+	AmfAMpolicyCtlResUriPrefix = "/namf-am-policy-control/v1"
 )
 
 type Config struct {
@@ -92,7 +92,7 @@ type Configuration struct {
 	Locality               string            `yaml:"locality,omitempty" valid:"type(string),optional"`
 	SCTP                   *Sctp             `yaml:"sctp,omitempty" valid:"optional"`
 	DefaultUECtxReq        bool              `yaml:"defaultUECtxReq,omitempty" valid:"type(bool),optional"`
-//        Mongodb                *Mongodb          `yaml:"mongodb" valid:"required"`
+	// Mongodb                *Mongodb          `yaml:"mongodb" valid:"required"`
 }
 
 type Logger struct {
@@ -278,11 +278,11 @@ func (c *Configuration) validate() (bool, error) {
 	if _, err := govalidator.ValidateStruct(c); err != nil {
 		return false, appendInvalid(err)
 	}
-        //if c.Mongodb != nil {
-            // if _, err := c.Mongodb.validate(); err != nil {
-            //        return false, err
-          //      }
-        //}
+	//if c.Mongodb != nil {
+	// if _, err := c.Mongodb.validate(); err != nil {
+	//        return false, err
+	//      }
+	//}
 
 	return true, nil
 }

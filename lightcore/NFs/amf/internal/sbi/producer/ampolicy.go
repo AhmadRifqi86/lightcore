@@ -209,12 +209,14 @@ func HandlePostPolicies(request *httpwrapper.Request) *httpwrapper.Response {
 func PostPoliciesProcedure(polAssoId string,
 	policyAssociationRequest models.PolicyAssociationRequest,
 ) (*models.PolicyAssociation, string, *models.ProblemDetails) {
+	fmt.Println(polAssoId)
 	var response models.PolicyAssociation
 	pcfSelf := pcf_context.GetSelf()
 	var ue *pcf_context.UeContext
 	if val, ok := pcfSelf.UePool.Load(policyAssociationRequest.Supi); ok {
 		ue = val.(*pcf_context.UeContext)
 	}
+	fmt.Println("Create New PCF UE")
 	if ue == nil {
 		if newUe, err := pcfSelf.NewPCFUe(policyAssociationRequest.Supi); err != nil {
 			// supi format dose not match "imsi-..."
@@ -225,6 +227,7 @@ func PostPoliciesProcedure(polAssoId string,
 			ue = newUe
 		}
 	}
+	fmt.Println("Get UDR URI")
 	udrUri := getUdrUri(ue)
 	if udrUri == "" {
 		// Can't find any UDR support this Ue
@@ -234,7 +237,7 @@ func PostPoliciesProcedure(polAssoId string,
 		return nil, "", &problemDetail
 	}
 	ue.UdrUri = udrUri //is this needed
-
+	fmt.Println("Put Policy Data to Context")
 	response.Request = deepcopy.Copy(&policyAssociationRequest).(*models.PolicyAssociationRequest)
 	assolId := fmt.Sprintf("%s-%d", ue.Supi, ue.PolAssociationIDGenerator)
 	amPolicy := ue.AMPolicyData[assolId]
@@ -297,23 +300,23 @@ func PostPoliciesProcedure(polAssoId string,
 			return needSubscribe
 		})
 
-		//if needSubscribe {
-		//	logger.AmPolicyLog.Debugf("Subscribe AMF status change[GUAMI: %+v]", *policyAssociationRequest.Guami)
-		//line dibawah ini
-		//	amfUri := consumer.SendNFInstancesAMF(pcfSelf.NrfUri, *policyAssociationRequest.Guami, models.ServiceName_NAMF_COMM)
-		//	if amfUri != "" {
-		//		problemDetails, err := consumer.AmfStatusChangeSubscribe(amfUri, []models.Guami{*policyAssociationRequest.Guami})
-		//		if err != nil {
-		//			logger.AmPolicyLog.Errorf("Subscribe AMF status change error[%+v]", err)
-		//		} else if problemDetails != nil {
-		//			logger.AmPolicyLog.Errorf("Subscribe AMF status change failed[%+v]", problemDetails)
-		//		} else {
-		//			amPolicy.Guami = policyAssociationRequest.Guami
-		//		}
-		//	}
-		//} else {
-		//	logger.AmPolicyLog.Debugf("AMF status[GUAMI: %+v] has been subscribed", *policyAssociationRequest.Guami)
-		//}
+		// if needSubscribe {
+		// 	logger.AmPolicyLog.Debugf("Subscribe AMF status change[GUAMI: %+v]", *policyAssociationRequest.Guami)
+		// 	//line dibawah ini
+		// 	amfUri := consumer.SendNFInstancesAMF(pcfSelf.NrfUri, *policyAssociationRequest.Guami, models.ServiceName_NAMF_COMM)
+		// 	if amfUri != "" {
+		// 		problemDetails, err := consumer.AmfStatusChangeSubscribe(amfUri, []models.Guami{*policyAssociationRequest.Guami})
+		// 		if err != nil {
+		// 			logger.AmPolicyLog.Errorf("Subscribe AMF status change error[%+v]", err)
+		// 		} else if problemDetails != nil {
+		// 			logger.AmPolicyLog.Errorf("Subscribe AMF status change failed[%+v]", problemDetails)
+		// 		} else {
+		// 			amPolicy.Guami = policyAssociationRequest.Guami
+		// 		}
+		// 	}
+		// } else {
+		// 	logger.AmPolicyLog.Debugf("AMF status[GUAMI: %+v] has been subscribed", *policyAssociationRequest.Guami)
+		// }
 	}
 	return &response, locationHeader, nil
 }

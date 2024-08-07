@@ -2,7 +2,7 @@ package consumer
 
 import (
 	"context"
-
+        "fmt"
 	"github.com/antihax/optional"
 
 	amf_context "github.com/free5gc/amf/internal/context"
@@ -40,7 +40,7 @@ func SDMGetAmData(ue *amf_context.AmfUe) (problemDetails *models.ProblemDetails,
 	configuration := Nudm_SubscriberDataManagement.NewConfiguration()
 	configuration.SetBasePath(ue.NudmSDMUri)
 	client := Nudm_SubscriberDataManagement.NewAPIClient(configuration)
-
+        fmt.Println("Create Nudm_SubscriberDataManagement request from SDMGetAmData()")
 	getAmDataParamOpt := Nudm_SubscriberDataManagement.GetAmDataParamOpts{
 		PlmnId: optional.NewInterface(openapi.MarshToJsonString(ue.PlmnId)),
 	}
@@ -56,7 +56,8 @@ func SDMGetAmData(ue *amf_context.AmfUe) (problemDetails *models.ProblemDetails,
 		}
 	}()
 	if localErr == nil {
-		ue.AccessAndMobilitySubscriptionData = &data
+                fmt.Println("Write ue.AccessAndMobilitySubscription data (OK)")
+		ue.AccessAndMobilitySubscriptionData = &data //written by response from UDM?
 		ue.Gpsi = data.Gpsis[0] // TODO: select GPSI
 	} else if httpResp != nil {
 		if httpResp.Status != localErr.Error() {

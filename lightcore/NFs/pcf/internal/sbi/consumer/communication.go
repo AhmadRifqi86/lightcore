@@ -19,7 +19,7 @@ func AmfStatusChangeSubscribe(amfUri string, guamiList []models.Guami) (
 	logger.ConsumerLog.Debugf("PCF Subscribe to AMF status[%+v]", amfUri)
 	pcfSelf := pcf_context.GetSelf()
 	client := util.GetNamfClient(amfUri)
-
+	//PcfCallbackResUriPrefix ada ga di amf?
 	subscriptionData := models.SubscriptionData{
 		AmfStatusUri: fmt.Sprintf("%s"+factory.PcfCallbackResUriPrefix+"/amfstatus", pcfSelf.GetIPv4Uri()),
 		GuamiList:    guamiList,

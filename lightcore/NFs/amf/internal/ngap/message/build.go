@@ -1110,7 +1110,7 @@ func BuildInitialContextSetupRequest(
 		ie.Value.Present = ngapType.InitialContextSetupRequestIEsPresentMobilityRestrictionList
 		ie.Value.MobilityRestrictionList = new(ngapType.MobilityRestrictionList)
 
-		mobilityRestrictionList := BuildIEMobilityRestrictionList(amfUe)
+		mobilityRestrictionList := BuildIEMobilityRestrictionList(amfUe)  //This part generate error
 		ie.Value.MobilityRestrictionList = &mobilityRestrictionList
 		initialContextSetupRequestIEs.List = append(initialContextSetupRequestIEs.List, ie)
 	}
@@ -1781,7 +1781,7 @@ func BuildHandoverRequest(ue *context.RanUe, cause ngapType.Cause,
 		ie.Value.Present = ngapType.HandoverRequestIEsPresentMobilityRestrictionList
 		ie.Value.MobilityRestrictionList = new(ngapType.MobilityRestrictionList)
 
-		mobilityRestrictionList := BuildIEMobilityRestrictionList(amfUe)
+		mobilityRestrictionList := BuildIEMobilityRestrictionList(amfUe) //this part generate error
 		ie.Value.MobilityRestrictionList = &mobilityRestrictionList
 		handoverRequestIEs.List = append(handoverRequestIEs.List, ie)
 	}
