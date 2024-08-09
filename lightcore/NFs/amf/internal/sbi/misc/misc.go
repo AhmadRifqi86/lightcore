@@ -10,10 +10,11 @@ import (
 	"github.com/mohae/deepcopy"
 	"go.mongodb.org/mongo-driver/bson"
 
-	pcf_context "github.com/free5gc/amf/internal/context"
-	"github.com/free5gc/amf/internal/logger"
+	//pcf_context "github.com/AhmadRifqi86/lightcore/lightcore/NFs/amf/internal/context"
+	pcf_context "lightcore/lightcore/lightcore/NFs/amf/internal/context"
+	"lightcore/lightcore/lightcore/NFs/amf/internal/logger"
 
-	"github.com/free5gc/amf/internal/util"
+	"lightcore/lightcore/lightcore/NFs/amf/internal/util"
 	"github.com/free5gc/openapi"
 	"github.com/free5gc/openapi/models"
 	"github.com/free5gc/util/mongoapi"
@@ -25,7 +26,7 @@ func PostPoliciesProcedure(polAssoId string,
 	fmt.Println("polAssoId is")
 	fmt.Println(polAssoId)
 	var response models.PolicyAssociation
-	pcfSelf := pcf_context.GetSelf()
+	pcfSelf := pcf_context.GetSelf() //return AMFContext
 	var ue *pcf_context.UeContext
 	if val, ok := pcfSelf.UePool.Load(policyAssociationRequest.Supi); ok {
 		ue = val.(*pcf_context.UeContext)
@@ -90,8 +91,8 @@ func PostPoliciesProcedure(polAssoId string,
 		if amPolicy == nil {
 			amPolicy = ue.NewUeAMPolicyData(assolId, policyAssociationRequest)
 		}
-		fmt.Println("amData")
-		fmt.Println(amData)
+		// fmt.Println("amData")
+		// fmt.Println(amData)
 		amPolicy.AmPolicyData = &amData
 	}
 
@@ -110,6 +111,7 @@ func PostPoliciesProcedure(polAssoId string,
 		response.Rfsp = amPolicy.Rfsp
 	}
 	response.SuppFeat = amPolicy.SuppFeat
+	// fmt.Println(response.SuppFeat)
 	// TODO: add Reports
 	// rsp.Triggers
 	// rsp.Pras

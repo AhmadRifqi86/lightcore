@@ -7,10 +7,10 @@ import (
 
 	"github.com/mitchellh/mapstructure"
 
-	"github.com/free5gc/amf/internal/context"
-	"github.com/free5gc/amf/internal/logger"
-	"github.com/free5gc/amf/internal/nas/nas_security"
-	"github.com/free5gc/amf/pkg/factory"
+	"lightcore/lightcore/lightcore/NFs/amf/internal/context"
+	"lightcore/lightcore/lightcore/NFs/amf/internal/logger"
+	"lightcore/lightcore/lightcore/NFs/amf/internal/nas/nas_security"
+	"lightcore/lightcore/lightcore/NFs/amf/pkg/factory"
 	"github.com/free5gc/nas"
 	"github.com/free5gc/nas/nasConvert"
 	"github.com/free5gc/nas/nasMessage"

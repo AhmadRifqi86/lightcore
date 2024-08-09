@@ -2,7 +2,7 @@
 package ngap
 
 import (
-	"github.com/free5gc/amf/internal/context"
+	"lightcore/lightcore/lightcore/NFs/amf/internal/context"
 	"github.com/free5gc/ngap/ngapType"
 )
 

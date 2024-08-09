@@ -258,9 +258,9 @@ func generateHandler() {
 	fOut := newOutputFile("handler_generated.go",
 		"ngap",
 		[]string{
-			"\"github.com/free5gc/amf/internal/context\"",
-			"\"github.com/free5gc/amf/internal/logger\"",
-			"ngap_message \"github.com/free5gc/amf/internal/ngap/message\"",
+			"\"lightcore/lightcore/lightcore/NFs/amf/internal/context\"",
+			"\"lightcore/lightcore/lightcore/NFs/amf/internal/logger\"",
+			"ngap_message \"lightcore/lightcore/lightcore/NFs/amf/internal/ngap/message\"",
 			"\"github.com/free5gc/ngap\"",
 			"\"github.com/free5gc/ngap/ngapType\"",
 		})
@@ -575,7 +575,7 @@ func generateDispatcher() {
 	fOut := newOutputFile("dispatcher_generated.go",
 		"ngap",
 		[]string{
-			"\"github.com/free5gc/amf/internal/context\"",
+			"\"lightcore/lightcore/lightcore/NFs/amf/internal/context\"",
 			"\"github.com/free5gc/ngap/ngapType\"",
 		})
 

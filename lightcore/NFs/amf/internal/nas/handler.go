@@ -3,10 +3,10 @@ package nas
 import (
 	"fmt"
 
-	amf_context "github.com/free5gc/amf/internal/context"
-	gmm_common "github.com/free5gc/amf/internal/gmm/common"
-	"github.com/free5gc/amf/internal/logger"
-	"github.com/free5gc/amf/internal/nas/nas_security"
+	amf_context "lightcore/lightcore/lightcore/NFs/amf/internal/context"
+	gmm_common "lightcore/lightcore/lightcore/NFs/amf/internal/gmm/common"
+	"lightcore/lightcore/lightcore/NFs/amf/internal/logger"
+	"lightcore/lightcore/lightcore/NFs/amf/internal/nas/nas_security"
 	"github.com/free5gc/nas"
 )
 

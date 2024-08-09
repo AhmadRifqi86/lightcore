@@ -7,9 +7,9 @@ import (
 
 	"github.com/urfave/cli"
 
-	"github.com/free5gc/amf/internal/logger"
-	"github.com/free5gc/amf/pkg/factory"
-	"github.com/free5gc/amf/pkg/service"
+	"lightcore/lightcore/lightcore/NFs/amf/internal/logger"
+	"lightcore/lightcore/lightcore/NFs/amf/pkg/factory"
+	"lightcore/lightcore/lightcore/NFs/amf/pkg/service"
 	logger_util "github.com/free5gc/util/logger"
 	"github.com/free5gc/util/version"
 )

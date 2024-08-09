@@ -271,6 +271,8 @@ func PostPoliciesProcedure(polAssoId string,
 		response.Rfsp = amPolicy.Rfsp
 	}
 	response.SuppFeat = amPolicy.SuppFeat
+	fmt.Println("SuppFeat is")
+	fmt.Println(amPolicy.SuppFeat)
 	// TODO: add Reports
 	// rsp.Triggers
 	// rsp.Pras

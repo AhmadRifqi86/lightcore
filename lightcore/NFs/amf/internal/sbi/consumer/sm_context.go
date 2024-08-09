@@ -9,10 +9,10 @@ import (
 
 	"github.com/antihax/optional"
 
-	amf_context "github.com/free5gc/amf/internal/context"
-	"github.com/free5gc/amf/internal/logger"
-	"github.com/free5gc/amf/internal/util"
-	"github.com/free5gc/amf/pkg/factory"
+	amf_context "lightcore/lightcore/lightcore/NFs/amf/internal/context"
+	"lightcore/lightcore/lightcore/NFs/amf/internal/logger"
+	"lightcore/lightcore/lightcore/NFs/amf/internal/util"
+	"lightcore/lightcore/lightcore/NFs/amf/pkg/factory"
 	"github.com/free5gc/nas/nasMessage"
 	"github.com/free5gc/openapi"
 	"github.com/free5gc/openapi/Nnrf_NFDiscovery"

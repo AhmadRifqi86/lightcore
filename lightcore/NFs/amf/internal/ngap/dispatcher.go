@@ -5,8 +5,8 @@ import (
 
 	"git.cs.nctu.edu.tw/calee/sctp"
 
-	"github.com/free5gc/amf/internal/context"
-	"github.com/free5gc/amf/internal/logger"
+	"lightcore/lightcore/lightcore/NFs/amf/internal/context"
+	"lightcore/lightcore/lightcore/NFs/amf/internal/logger"
 	"github.com/free5gc/ngap"
 )
 

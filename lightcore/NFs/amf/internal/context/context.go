@@ -12,11 +12,11 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/free5gc/amf/internal/logger"
-	"github.com/free5gc/amf/pkg/factory"
+	"lightcore/lightcore/lightcore/NFs/amf/internal/logger"
+	"lightcore/lightcore/lightcore/NFs/amf/pkg/factory"
 	"github.com/free5gc/nas/security"
 	"github.com/free5gc/openapi"
-        "github.com/free5gc/openapi/models"
+	"github.com/free5gc/openapi/models"
 	"github.com/free5gc/util/idgenerator"
 )
 
@@ -73,18 +73,18 @@ type AMFContext struct {
 	T3512Value                   int // unit is second
 	Non3gppDeregTimerValue       int // unit is second
 	// read-only fields
-	T3513Cfg factory.TimerValue
-	T3522Cfg factory.TimerValue
-	T3550Cfg factory.TimerValue
-	T3560Cfg factory.TimerValue
-	T3565Cfg factory.TimerValue
-	T3570Cfg factory.TimerValue
-	Locality string
-        PcfServiceUris  map[models.ServiceName]string
-        PcfSuppFeats    map[models.ServiceName]openapi.SupportedFeature
-        AppSessionPool sync.Map  //from PCF context.go   init nya dimana?
-        AMFStatusSubsData sync.Map  //from PCF context.go init nya dimana?
-        pcfUePool         sync.Map
+	T3513Cfg          factory.TimerValue
+	T3522Cfg          factory.TimerValue
+	T3550Cfg          factory.TimerValue
+	T3560Cfg          factory.TimerValue
+	T3565Cfg          factory.TimerValue
+	T3570Cfg          factory.TimerValue
+	Locality          string
+	PcfServiceUris    map[models.ServiceName]string
+	PcfSuppFeats      map[models.ServiceName]openapi.SupportedFeature
+	AppSessionPool    sync.Map //from PCF context.go   init nya dimana?
+	AMFStatusSubsData sync.Map //from PCF context.go init nya dimana?
+	pcfUePool         sync.Map
 }
 
 type AMFContextEventSubscription struct {
@@ -101,22 +101,22 @@ type SecurityAlgorithm struct {
 }
 
 type AMFStatusSubscriptionData struct {
-        AmfUri       string
-        AmfStatusUri string  //ada di AMF Context, tapi itu sync.map
-        GuamiList    []models.Guami  //ada di AMF context: servedGuamiList
+	AmfUri       string
+	AmfStatusUri string         //ada di AMF Context, tapi itu sync.map
+	GuamiList    []models.Guami //ada di AMF context: servedGuamiList
 }
 
 type AppSessionData struct {
-        AppSessionId      string
-        AppSessionContext *models.AppSessionContext
-        // (compN/compN-subCompN/appId-%s) map to PccRule
-        RelatedPccRuleIds    map[string]string
-        PccRuleIdMapToCompId map[string]string
-        // EventSubscription
-        Events   map[models.AfEvent]models.AfNotifMethod
-        EventUri string
-        // related Session
-        SmPolicyData *UeSmPolicyData
+	AppSessionId      string
+	AppSessionContext *models.AppSessionContext
+	// (compN/compN-subCompN/appId-%s) map to PccRule
+	RelatedPccRuleIds    map[string]string
+	PccRuleIdMapToCompId map[string]string
+	// EventSubscription
+	Events   map[models.AfEvent]models.AfNotifMethod
+	EventUri string
+	// related Session
+	SmPolicyData *UeSmPolicyData
 }
 
 func InitAmfContext(context *AMFContext) {
@@ -127,10 +127,10 @@ func InitAmfContext(context *AMFContext) {
 	if configuration.AmfName != "" {
 		context.Name = configuration.AmfName
 	}
-        //mongodb := config.Configuration.Mongodb
-        //if err := mongoapi.SetMongoDB(mongodb.Name, mongodb.Url>                logger.UtilLog.Errorf("InitpcfContext err: %+v">
-                //return
-        //}
+	//mongodb := config.Configuration.Mongodb
+	//if err := mongoapi.SetMongoDB(mongodb.Name, mongodb.Url>                logger.UtilLog.Errorf("InitpcfContext err: %+v">
+	//return
+	//}
 	if configuration.NgapIpList != nil {
 		context.NgapIpList = configuration.NgapIpList
 	} else {
@@ -167,8 +167,8 @@ func InitAmfContext(context *AMFContext) {
 	context.T3565Cfg = configuration.T3565
 	context.T3570Cfg = configuration.T3570
 	context.Locality = configuration.Locality
-        context.PcfServiceUris = make(map[models.ServiceName]string)
-        context.PcfSuppFeats = make(map[models.ServiceName]openapi.SupportedFeature)
+	context.PcfServiceUris = make(map[models.ServiceName]string)
+	context.PcfSuppFeats = make(map[models.ServiceName]openapi.SupportedFeature)
 }
 
 func getIntAlgOrder(integrityOrder []string) (intOrder []uint8) {
@@ -490,9 +490,10 @@ func (context *AMFContext) RanUeFindByAmfUeNgapID(amfUeNgapID int64) *RanUe {
 func (context *AMFContext) GetIPv4Uri() string {
 	return fmt.Sprintf("%s://%s:%d", context.UriScheme, context.RegisterIPv4, context.SBIPort)
 }
-//from PCF
+
+// from PCF
 func GetUri(name models.ServiceName) string {
-        return amfContext.PcfServiceUris[name]
+	return amfContext.PcfServiceUris[name]
 }
 
 //NfService
@@ -570,78 +571,76 @@ func GetSelf() *AMFContext {
 
 // Function defined at /pcf/internal/context/context.go
 func (c *AMFContext) NewPCFUe(Supi string) (*UeContext, error) {
-        if strings.HasPrefix(Supi, "imsi-") {
-                newUeContext := &UeContext{}
-                newUeContext.SmPolicyData = make(map[string]*UeSmPolicyData)
-                newUeContext.AMPolicyData = make(map[string]*UeAMPolicyData)
-                newUeContext.PolAssociationIDGenerator = 1
-                newUeContext.AppSessionIDGenerator = idgenerator.NewGenerator(1, math.MaxInt64)
-                newUeContext.Supi = Supi
-                c.UePool.Store(Supi, newUeContext)
-                return newUeContext, nil
-        } else {
-                return nil, fmt.Errorf(" add Ue context fail ")
-        }
+	if strings.HasPrefix(Supi, "imsi-") {
+		newUeContext := &UeContext{}
+		newUeContext.SmPolicyData = make(map[string]*UeSmPolicyData)
+		newUeContext.AMPolicyData = make(map[string]*UeAMPolicyData)
+		newUeContext.PolAssociationIDGenerator = 1
+		newUeContext.AppSessionIDGenerator = idgenerator.NewGenerator(1, math.MaxInt64)
+		newUeContext.Supi = Supi
+		c.UePool.Store(Supi, newUeContext)
+		return newUeContext, nil
+	} else {
+		return nil, fmt.Errorf(" add Ue context fail ")
+	}
 }
 
 func (c *AMFContext) PCFUeFindByPolicyId(PolicyId string) *UeContext {
-        index := strings.LastIndex(PolicyId, "-")
-        if index == -1 {
-                return nil
-        }
-        supi := PolicyId[:index]
-        if supi != "" {
-                if value, ok := c.pcfUePool.Load(supi); ok {
-                        ueContext := value.(*UeContext)
-                        return ueContext
-                }
-        }
-        return nil
+	index := strings.LastIndex(PolicyId, "-")
+	if index == -1 {
+		return nil
+	}
+	supi := PolicyId[:index]
+	if supi != "" {
+		if value, ok := c.pcfUePool.Load(supi); ok {
+			ueContext := value.(*UeContext)
+			return ueContext
+		}
+	}
+	return nil
 }
 
 func (c *AMFContext) PCFUeFindByAppSessionId(appSessionId string) *UeContext {
-        index := strings.LastIndex(appSessionId, "-")
-        if index == -1 {
-                return nil
-        }
-        supi := appSessionId[:index]
-        if supi != "" {
-                if value, ok := c.pcfUePool.Load(supi); ok {
-                        ueContext := value.(*UeContext)
-                        return ueContext
-                }
-        }
-        return nil
+	index := strings.LastIndex(appSessionId, "-")
+	if index == -1 {
+		return nil
+	}
+	supi := appSessionId[:index]
+	if supi != "" {
+		if value, ok := c.pcfUePool.Load(supi); ok {
+			ueContext := value.(*UeContext)
+			return ueContext
+		}
+	}
+	return nil
 }
-
 
 func (c *AMFContext) PcfUeFindByIPv4(v4 string) *UeContext {
-        var ue *UeContext
-        c.pcfUePool.Range(func(key, value interface{}) bool {
-                ue = value.(*UeContext)
-                if ue.SMPolicyFindByIpv4(v4) != nil {
-                        return false
-                } else {
-                        return true
-                }
-        })
+	var ue *UeContext
+	c.pcfUePool.Range(func(key, value interface{}) bool {
+		ue = value.(*UeContext)
+		if ue.SMPolicyFindByIpv4(v4) != nil {
+			return false
+		} else {
+			return true
+		}
+	})
 
-        return ue
+	return ue
 }
 
-
 func (c *AMFContext) PcfUeFindByIPv6(v6 string) *UeContext {
-        var ue *UeContext
-        c.pcfUePool.Range(func(key, value interface{}) bool {
-                ue = value.(*UeContext)
-                if ue.SMPolicyFindByIpv6(v6) != nil {
-                        return false
-                } else {
-                        return true
-                }
-        })
+	var ue *UeContext
+	c.pcfUePool.Range(func(key, value interface{}) bool {
+		ue = value.(*UeContext)
+		if ue.SMPolicyFindByIpv6(v6) != nil {
+			return false
+		} else {
+			return true
+		}
+	})
 
-        return ue
+	return ue
 }
 
 //func (c *PCFContext) NewAmfStatusSubscription(subscriptionID st>        c.AMFStatusSubsData.Store(subscriptionID, subscriptionD>}

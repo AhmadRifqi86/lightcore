@@ -4,10 +4,10 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/free5gc/amf/internal/context"
-	gmm_common "github.com/free5gc/amf/internal/gmm/common"
-	"github.com/free5gc/amf/internal/logger"
-	"github.com/free5gc/amf/internal/sbi/consumer"
+	"lightcore/lightcore/lightcore/NFs/amf/internal/context"
+	gmm_common "lightcore/lightcore/lightcore/NFs/amf/internal/gmm/common"
+	"lightcore/lightcore/lightcore/NFs/amf/internal/logger"
+	"lightcore/lightcore/lightcore/NFs/amf/internal/sbi/consumer"
 	"github.com/free5gc/openapi/models"
 	"github.com/free5gc/util/httpwrapper"
 )

@@ -102,6 +102,10 @@ type UeSmPolicyData struct {
 func (ue *UeContext) NewUeAMPolicyData(assolId string, req models.PolicyAssociationRequest) *UeAMPolicyData {
 	ue.Gpsi = req.Gpsi
 	ue.Pei = req.Pei
+	fmt.Println("GPSI")
+	fmt.Println(ue.Gpsi)
+	fmt.Println("PEI")
+	fmt.Println(ue.Pei)
 	ue.GroupIds = req.GroupIds
 	ue.AMPolicyData[assolId] = &UeAMPolicyData{
 		PolAssoId:         assolId,

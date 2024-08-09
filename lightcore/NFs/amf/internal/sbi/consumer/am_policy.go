@@ -7,12 +7,12 @@ import (
 
 	//"net/http"
 
-	amf_context "github.com/free5gc/amf/internal/context"
+	amf_context "lightcore/lightcore/lightcore/NFs/amf/internal/context"
 	//amf_context "github.com/AhmadRifqi86/lightcore/lightcore/amf/internal/context"
-	"github.com/free5gc/amf/internal/logger"
-	//"github.com/free5gc/amf/internal/sbi/misc"
-	"github.com/free5gc/amf/internal/sbi/misc"
-	"github.com/free5gc/amf/pkg/factory"
+	"lightcore/lightcore/lightcore/NFs/amf/internal/logger"
+	//"lightcore/lightcore/lightcore/NFs/amf/internal/sbi/misc"
+	"lightcore/lightcore/lightcore/NFs/amf/internal/sbi/misc"
+	"lightcore/lightcore/lightcore/NFs/amf/pkg/factory"
 	"github.com/free5gc/openapi"
 	"github.com/free5gc/openapi/Npcf_AMPolicy"
 	"github.com/free5gc/openapi/models"

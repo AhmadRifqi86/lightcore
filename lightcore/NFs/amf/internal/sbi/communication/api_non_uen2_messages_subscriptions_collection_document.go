@@ -14,7 +14,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/free5gc/amf/internal/logger"
+	"lightcore/lightcore/lightcore/NFs/amf/internal/logger"
 )
 
 // NonUeN2InfoSubscribe - Namf_Communication Non UE N2 Info Subscribe service Operation
