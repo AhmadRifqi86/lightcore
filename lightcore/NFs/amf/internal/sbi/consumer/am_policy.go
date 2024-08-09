@@ -4,13 +4,13 @@ package consumer
 import (
 	"context"
 	"fmt"
-	"regexp"
 
 	//"net/http"
 
 	amf_context "github.com/free5gc/amf/internal/context"
 	//amf_context "github.com/AhmadRifqi86/lightcore/lightcore/amf/internal/context"
 	"github.com/free5gc/amf/internal/logger"
+	//"github.com/free5gc/amf/internal/sbi/misc"
 	"github.com/free5gc/amf/internal/sbi/misc"
 	"github.com/free5gc/amf/pkg/factory"
 	"github.com/free5gc/openapi"
@@ -119,12 +119,13 @@ func AMPolicyControlCreate(ue *amf_context.AmfUe, anType models.AccessType) (*mo
 	fmt.Println("problemDetails")
 	fmt.Println(problemDetails)
 	if response != nil {
-		ue.AmPolicyUri = locationHeader
-		fmt.Println("CREATE REGEX")
-		re := regexp.MustCompile("/policies/.*")
-		match := re.FindStringSubmatch(locationHeader)
+		//ue.AmPolicyUri = locationHeader
+		// fmt.Println("CREATE REGEX")
+		// re := regexp.MustCompile("/policies/.*")
+		// match := re.FindStringSubmatch(locationHeader)
 		fmt.Println("PUT RESPONSE TO UE CONTEXT")
-		ue.PolicyAssociationId = match[0][10:]
+		//ue.PolicyAssociationId = match[0][10:]
+		ue.PolicyAssociationId = locationHeader
 		fmt.Println("MATCH REGEX")
 
 		ue.AmPolicyAssociation = response

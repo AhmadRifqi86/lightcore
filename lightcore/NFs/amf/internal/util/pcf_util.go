@@ -8,6 +8,8 @@ import (
 	"reflect"
 	"time"
 
+	"github.com/free5gc/amf/internal/context"
+	"github.com/free5gc/amf/internal/logger"
 	"github.com/free5gc/openapi/Namf_Communication"
 	"github.com/free5gc/openapi/Nbsf_Management"
 	"github.com/free5gc/openapi/Npcf_AMPolicy"
@@ -15,8 +17,6 @@ import (
 	"github.com/free5gc/openapi/Npcf_SMPolicyControl"
 	"github.com/free5gc/openapi/Nudr_DataRepository"
 	"github.com/free5gc/openapi/models"
-	"github.com/free5gc/amf/internal/context"
-	"github.com/free5gc/amf/internal/logger"
 )
 
 const TimeFormat = time.RFC3339
@@ -36,6 +36,7 @@ var (
 	UNAUTHORIZED_SPONSORED_DATA_CONNECTIVITY     = "UNAUTHORIZED_SPONSORED_DATA_CONNECTIVITY"
 	PDU_SESSION_NOT_AVAILABLE                    = "PDU_SESSION_NOT_AVAILABLE"
 	APPLICATION_SESSION_CONTEXT_NOT_FOUND        = "APPLICATION_SESSION_CONTEXT_NOT_FOUND"
+	SYSTEM_FAILURE                               = "SYSTEM FAILURE"
 	PcpErrHttpStatusMap                          = map[string]int32{
 		ERROR_REQUEST_PARAMETERS:                     http.StatusBadRequest,
 		USER_UNKNOWN:                                 http.StatusBadRequest,

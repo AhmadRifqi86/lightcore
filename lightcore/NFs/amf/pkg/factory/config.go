@@ -92,13 +92,18 @@ type Configuration struct {
 	Locality               string            `yaml:"locality,omitempty" valid:"type(string),optional"`
 	SCTP                   *Sctp             `yaml:"sctp,omitempty" valid:"optional"`
 	DefaultUECtxReq        bool              `yaml:"defaultUECtxReq,omitempty" valid:"type(bool),optional"`
-	// Mongodb                *Mongodb          `yaml:"mongodb" valid:"required"`
+	Mongodb                *Mongodb          `yaml:"mongodb" valid:"required"`
 }
 
 type Logger struct {
 	Enable       bool   `yaml:"enable" valid:"type(bool)"`
 	Level        string `yaml:"level" valid:"required,in(trace|debug|info|warn|error|fatal|panic)"`
 	ReportCaller bool   `yaml:"reportCaller" valid:"type(bool)"`
+}
+
+type Mongodb struct {
+	Name string `yaml:"name" valid:"type(string),required"`
+	Url  string `yaml:"url" valid:"requrl,required"`
 }
 
 func (c *Configuration) validate() (bool, error) {

@@ -15,6 +15,9 @@ configuration:
     tls: # the local path of TLS key
       pem: cert/amf.pem # AMF TLS Certificate
       key: cert/amf.key # AMF TLS Private key
+  mongodb:
+    name: free5gc # Database name in MongoDB
+    url: mongodb://localhost:27017 # URL of MongoDB
   serviceNameList: # the SBI services provided by this AMF, refer to TS 29.518
     - namf-comm # Namf_Communication service
     - namf-evts # Namf_EventExposure service

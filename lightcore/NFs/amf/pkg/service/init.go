@@ -21,6 +21,8 @@ import (
 	"github.com/free5gc/amf/internal/sbi/eventexposure"
 	"github.com/free5gc/amf/internal/sbi/httpcallback"
 	"github.com/free5gc/amf/internal/sbi/location"
+
+	//"github.com/free5gc/amf/internal/sbi/misc"
 	"github.com/free5gc/amf/internal/sbi/mt"
 	"github.com/free5gc/amf/internal/sbi/oam"
 	"github.com/free5gc/amf/internal/sbi/producer/callback"
@@ -28,6 +30,7 @@ import (
 	"github.com/free5gc/openapi/models"
 	"github.com/free5gc/util/httpwrapper"
 	logger_util "github.com/free5gc/util/logger"
+	"github.com/free5gc/util/mongoapi"
 )
 
 type AmfApp struct {
@@ -90,6 +93,13 @@ func (a *AmfApp) SetReportCaller(reportCaller bool) {
 
 func (a *AmfApp) Start(tlsKeyLogPath string) {
 	logger.InitLog.Infoln("Server started")
+
+	config := factory.AmfConfig
+	mongodb := config.Configuration.Mongodb
+	if err := mongoapi.SetMongoDB(mongodb.Name, mongodb.Url); err != nil {
+		logger.InitLog.Errorf("MongoDB start err: %+v", err)
+		return
+	}
 
 	router := logger_util.NewGinWithLogrus(logger.GinLog)
 	router.Use(cors.New(cors.Config{

@@ -38,6 +38,8 @@ func getDataFromDB(collName string, filter bson.M) (map[string]interface{}, *mod
 	if data == nil {
 		return nil, util.ProblemDetailsNotFound("DATA_NOT_FOUND")
 	}
+	fmt.Println("Mongoapi result")
+	fmt.Println(data)
 	return data, nil
 }
 
@@ -1288,7 +1290,8 @@ func HandlePolicyDataUesUeIdAmDataGet(request *httpwrapper.Request) *httpwrapper
 
 	collName := "policyData.ues.amData"
 	ueId := request.Params["ueId"]
-
+	fmt.Println("(UDR) Received UeId:")
+	fmt.Println(ueId)
 	response, problemDetails := PolicyDataUesUeIdAmDataGetProcedure(collName, ueId)
 
 	if response != nil {
@@ -1306,6 +1309,8 @@ func PolicyDataUesUeIdAmDataGetProcedure(collName string,
 ) (*map[string]interface{}, *models.ProblemDetails) {
 	filter := bson.M{"ueId": ueId}
 	data, pd := getDataFromDB(collName, filter)
+	fmt.Println("(UDR) Get Data from DB result:")
+	fmt.Println(data)
 	if pd != nil {
 		logger.DataRepoLog.Errorf("PolicyDataUesUeIdAmDataGetProcedure err: %s", pd.Detail)
 		return nil, pd
