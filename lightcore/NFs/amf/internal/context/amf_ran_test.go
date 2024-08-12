@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"lightcore/lightcore/lightcore/NFs/amf/internal/logger"
+	"github.com/AhmadRifqi86/lightcore/lightcore/NFs/amf/internal/logger"
 )
 
 func TestRemoveAndRemoveAllRanUeRaceCondition(t *testing.T) {

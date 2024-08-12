@@ -1,10 +1,10 @@
 package common
 
 import (
-	"lightcore/lightcore/lightcore/NFs/amf/internal/context"
-	"lightcore/lightcore/lightcore/NFs/amf/internal/logger"
-	ngap_message "lightcore/lightcore/lightcore/NFs/amf/internal/ngap/message"
-	"lightcore/lightcore/lightcore/NFs/amf/internal/sbi/consumer"
+	"github.com/AhmadRifqi86/lightcore/lightcore/NFs/amf/internal/context"
+	"github.com/AhmadRifqi86/lightcore/lightcore/NFs/amf/internal/logger"
+	ngap_message "github.com/AhmadRifqi86/lightcore/lightcore/NFs/amf/internal/ngap/message"
+	"github.com/AhmadRifqi86/lightcore/lightcore/NFs/amf/internal/sbi/consumer"
 	"github.com/free5gc/ngap/ngapType"
 	"github.com/free5gc/openapi/models"
 )

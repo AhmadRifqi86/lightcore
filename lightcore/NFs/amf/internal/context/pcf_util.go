@@ -1,4 +1,4 @@
-package util
+package context
 
 import (
 	"encoding/hex"
@@ -8,8 +8,8 @@ import (
 	"reflect"
 	"time"
 
-	"lightcore/lightcore/lightcore/NFs/amf/internal/context"
-	"lightcore/lightcore/lightcore/NFs/amf/internal/logger"
+	//"github.com/AhmadRifqi86/lightcore/lightcore/NFs/amf/internal/context"
+	"github.com/AhmadRifqi86/lightcore/lightcore/NFs/amf/internal/logger"
 	"github.com/free5gc/openapi/Namf_Communication"
 	"github.com/free5gc/openapi/Nbsf_Management"
 	"github.com/free5gc/openapi/Npcf_AMPolicy"
@@ -142,22 +142,22 @@ func GetProblemDetail(errString, cause string) models.ProblemDetails {
 }
 
 // GetSMPolicyDnnData returns SMPolicyDnnData derived from SmPolicy data which snssai and dnn match
-func GetSMPolicyDnnData(data models.SmPolicyData, snssai *models.Snssai, dnn string) (result *models.SmPolicyDnnData) {
-	if snssai == nil || dnn == "" || data.SmPolicySnssaiData == nil {
-		return
-	}
-	snssaiString := SnssaiModelsToHex(*snssai)
-	if snssaiData, exist := data.SmPolicySnssaiData[snssaiString]; exist {
-		if snssaiData.SmPolicyDnnData == nil {
-			return
-		}
-		if dnnInfo, exist := snssaiData.SmPolicyDnnData[dnn]; exist {
-			result = &dnnInfo
-			return
-		}
-	}
-	return
-}
+// func GetSMPolicyDnnData(data models.SmPolicyData, snssai *models.Snssai, dnn string) (result *models.SmPolicyDnnData) {
+// 	if snssai == nil || dnn == "" || data.SmPolicySnssaiData == nil {
+// 		return
+// 	}
+// 	snssaiString := SnssaiModelsToHex(*snssai)
+// 	if snssaiData, exist := data.SmPolicySnssaiData[snssaiString]; exist {
+// 		if snssaiData.SmPolicyDnnData == nil {
+// 			return
+// 		}
+// 		if dnnInfo, exist := snssaiData.SmPolicyDnnData[dnn]; exist {
+// 			result = &dnnInfo
+// 			return
+// 		}
+// 	}
+// 	return
+// }
 
 // MarshToJsonString returns value which can put into NewInterface()
 func MarshToJsonString(v interface{}) (result []string) {
@@ -215,7 +215,7 @@ var serviceUriMap = map[models.ServiceName]string{
 
 // Get Resource Uri (location Header) with param id string
 func GetResourceUri(name models.ServiceName, id string) string {
-	return fmt.Sprintf("%s/%s/%s", context.GetUri(name), serviceUriMap[name], id)
+	return fmt.Sprintf("%s/%s/%s", GetUri(name), serviceUriMap[name], id)
 }
 
 // Check if Feature is Supported or not

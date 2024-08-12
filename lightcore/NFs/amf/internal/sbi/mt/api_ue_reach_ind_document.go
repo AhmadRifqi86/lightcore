@@ -14,7 +14,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"lightcore/lightcore/lightcore/NFs/amf/internal/logger"
+	"github.com/AhmadRifqi86/lightcore/lightcore/NFs/amf/internal/logger"
 )
 
 // EnableUeReachability - Namf_MT EnableUEReachability service Operation

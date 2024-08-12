@@ -5,7 +5,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"lightcore/lightcore/lightcore/NFs/amf/internal/logger"
+	"github.com/AhmadRifqi86/lightcore/lightcore/NFs/amf/internal/logger"
 )
 
 // Timer can be used for retransmission, it will manage retry times automatically

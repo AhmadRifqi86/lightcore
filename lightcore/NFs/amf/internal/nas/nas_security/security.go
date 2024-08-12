@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"reflect"
 
-	"lightcore/lightcore/lightcore/NFs/amf/internal/context"
+	"github.com/AhmadRifqi86/lightcore/lightcore/NFs/amf/internal/context"
 	"github.com/free5gc/nas"
 	"github.com/free5gc/nas/nasConvert"
 	"github.com/free5gc/nas/nasMessage"

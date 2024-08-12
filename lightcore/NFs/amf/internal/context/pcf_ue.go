@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"lightcore/lightcore/lightcore/NFs/amf/internal/logger"
+	"github.com/AhmadRifqi86/lightcore/lightcore/NFs/amf/internal/logger"
 	"github.com/free5gc/openapi/models"
 	"github.com/free5gc/util/idgenerator"
 )

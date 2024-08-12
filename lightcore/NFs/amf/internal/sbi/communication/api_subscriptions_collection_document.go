@@ -14,8 +14,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"lightcore/lightcore/lightcore/NFs/amf/internal/logger"
-	"lightcore/lightcore/lightcore/NFs/amf/internal/sbi/producer"
+	"github.com/AhmadRifqi86/lightcore/lightcore/NFs/amf/internal/logger"
+	"github.com/AhmadRifqi86/lightcore/lightcore/NFs/amf/internal/sbi/producer"
 	"github.com/free5gc/openapi"
 	"github.com/free5gc/openapi/models"
 	"github.com/free5gc/util/httpwrapper"

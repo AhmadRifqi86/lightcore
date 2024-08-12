@@ -3,8 +3,8 @@ package message
 import (
 	"encoding/hex"
         "fmt"
-	"lightcore/lightcore/lightcore/NFs/amf/internal/context"
-	"lightcore/lightcore/lightcore/NFs/amf/internal/logger"
+	"github.com/AhmadRifqi86/lightcore/lightcore/NFs/amf/internal/context"
+	"github.com/AhmadRifqi86/lightcore/lightcore/NFs/amf/internal/logger"
 	"github.com/free5gc/ngap/ngapConvert"
 	"github.com/free5gc/ngap/ngapType"
 	"github.com/free5gc/openapi/models"

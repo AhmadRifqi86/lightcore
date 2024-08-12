@@ -16,8 +16,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
-	"lightcore/lightcore/lightcore/NFs/amf/internal/logger"
-	"lightcore/lightcore/lightcore/NFs/amf/pkg/factory"
+	"github.com/AhmadRifqi86/lightcore/lightcore/NFs/amf/internal/logger"
+	"github.com/AhmadRifqi86/lightcore/lightcore/NFs/amf/pkg/factory"
 	logger_util "github.com/free5gc/util/logger"
 )
 

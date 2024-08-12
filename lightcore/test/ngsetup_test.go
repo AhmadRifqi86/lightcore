@@ -15,8 +15,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	amf_factory "lightcore/lightcore/lightcore/NFs/amf/pkg/factory"
-	amf_service "lightcore/lightcore/lightcore/NFs/amf/pkg/service"
+	amf_factory "github.com/AhmadRifqi86/lightcore/lightcore/NFs/amf/pkg/factory"
+	amf_service "github.com/AhmadRifqi86/lightcore/lightcore/NFs/amf/pkg/service"
 	ausf_factory "github.com/free5gc/ausf/pkg/factory"
 	ausf_service "github.com/free5gc/ausf/pkg/service"
 	"github.com/free5gc/nas/security"

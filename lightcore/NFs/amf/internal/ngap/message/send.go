@@ -1,9 +1,9 @@
 package message
 
 import (
-	"lightcore/lightcore/lightcore/NFs/amf/internal/context"
-	"lightcore/lightcore/lightcore/NFs/amf/internal/logger"
-	"lightcore/lightcore/lightcore/NFs/amf/internal/sbi/producer/callback"
+	"github.com/AhmadRifqi86/lightcore/lightcore/NFs/amf/internal/context"
+	"github.com/AhmadRifqi86/lightcore/lightcore/NFs/amf/internal/logger"
+	"github.com/AhmadRifqi86/lightcore/lightcore/NFs/amf/internal/sbi/producer/callback"
 	"github.com/free5gc/aper"
 	"github.com/free5gc/ngap/ngapType"
 	"github.com/free5gc/openapi/models"

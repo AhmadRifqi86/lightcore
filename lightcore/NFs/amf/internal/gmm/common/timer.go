@@ -1,7 +1,7 @@
 package common
 
 import (
-	"lightcore/lightcore/lightcore/NFs/amf/internal/context"
+	"github.com/AhmadRifqi86/lightcore/lightcore/NFs/amf/internal/context"
 	"github.com/free5gc/openapi/models"
 )
 

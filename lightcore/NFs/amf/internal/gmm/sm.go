@@ -1,12 +1,12 @@
 package gmm
 
 import (
-	"lightcore/lightcore/lightcore/NFs/amf/internal/context"
-	gmm_common "lightcore/lightcore/lightcore/NFs/amf/internal/gmm/common"
-	gmm_message "lightcore/lightcore/lightcore/NFs/amf/internal/gmm/message"
-	"lightcore/lightcore/lightcore/NFs/amf/internal/logger"
-	ngap_message "lightcore/lightcore/lightcore/NFs/amf/internal/ngap/message"
-	"lightcore/lightcore/lightcore/NFs/amf/internal/sbi/consumer"
+	"github.com/AhmadRifqi86/lightcore/lightcore/NFs/amf/internal/context"
+	gmm_common "github.com/AhmadRifqi86/lightcore/lightcore/NFs/amf/internal/gmm/common"
+	gmm_message "github.com/AhmadRifqi86/lightcore/lightcore/NFs/amf/internal/gmm/message"
+	"github.com/AhmadRifqi86/lightcore/lightcore/NFs/amf/internal/logger"
+	ngap_message "github.com/AhmadRifqi86/lightcore/lightcore/NFs/amf/internal/ngap/message"
+	"github.com/AhmadRifqi86/lightcore/lightcore/NFs/amf/internal/sbi/consumer"
 	"github.com/free5gc/nas"
 	"github.com/free5gc/nas/nasConvert"
 	"github.com/free5gc/nas/nasMessage"

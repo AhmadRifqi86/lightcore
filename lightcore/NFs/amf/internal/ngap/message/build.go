@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"strings"
 
-	"lightcore/lightcore/lightcore/NFs/amf/internal/context"
-	"lightcore/lightcore/lightcore/NFs/amf/internal/logger"
-	"lightcore/lightcore/lightcore/NFs/amf/pkg/factory"
+	"github.com/AhmadRifqi86/lightcore/lightcore/NFs/amf/internal/context"
+	"github.com/AhmadRifqi86/lightcore/lightcore/NFs/amf/internal/logger"
+	"github.com/AhmadRifqi86/lightcore/lightcore/NFs/amf/pkg/factory"
 	"github.com/free5gc/aper"
 	"github.com/free5gc/ngap"
 	"github.com/free5gc/ngap/ngapConvert"

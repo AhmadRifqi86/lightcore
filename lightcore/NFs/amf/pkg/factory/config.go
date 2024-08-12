@@ -14,7 +14,7 @@ import (
 	"github.com/asaskevich/govalidator"
 	"github.com/davecgh/go-spew/spew"
 
-	"lightcore/lightcore/lightcore/NFs/amf/internal/logger"
+	"github.com/AhmadRifqi86/lightcore/lightcore/NFs/amf/internal/logger"
 	"github.com/free5gc/openapi/models"
 )
 

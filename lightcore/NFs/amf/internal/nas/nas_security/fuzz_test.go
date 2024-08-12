@@ -8,9 +8,9 @@ import (
 	"reflect"
 	"testing"
 
-	amf_context "lightcore/lightcore/lightcore/NFs/amf/internal/context"
-	"lightcore/lightcore/lightcore/NFs/amf/internal/logger"
-	"lightcore/lightcore/lightcore/NFs/amf/internal/nas/nas_security"
+	amf_context "github.com/AhmadRifqi86/lightcore/lightcore/NFs/amf/internal/context"
+	"github.com/AhmadRifqi86/lightcore/lightcore/NFs/amf/internal/logger"
+	"github.com/AhmadRifqi86/lightcore/lightcore/NFs/amf/internal/nas/nas_security"
 	"github.com/free5gc/nas"
 	"github.com/free5gc/nas/security"
 	"github.com/free5gc/openapi/models"

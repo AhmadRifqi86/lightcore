@@ -1,21 +1,21 @@
-package misc
+package context
 
 import (
 	"context"
 	"fmt"
 	"net/http"
 
-//        "github.com/antihax/optional"
+	//        "github.com/antihax/optional"
 
-	amf_context "lightcore/lightcore/lightcore/NFs/amf/internal/context"
-	"lightcore/lightcore/lightcore/NFs/amf/internal/logger"
-	"lightcore/lightcore/lightcore/NFs/amf/internal/util"
+	//amf_context "github.com/AhmadRifqi86/lightcore/lightcore/NFs/amf/internal/context"
+	"github.com/AhmadRifqi86/lightcore/lightcore/NFs/amf/internal/logger"
+	"github.com/AhmadRifqi86/lightcore/lightcore/NFs/amf/internal/util"
 	"github.com/free5gc/openapi/Nnrf_NFDiscovery"
 	"github.com/free5gc/openapi/models"
 )
 
 func SendSearchNFInstances(nrfUri string, targetNfType, requestNfType models.NfType,
-      param *Nnrf_NFDiscovery.SearchNFInstancesParamOpts,
+	param *Nnrf_NFDiscovery.SearchNFInstancesParamOpts,
 ) (models.SearchResult, error) {
 	// Set client and set url
 	configuration := Nnrf_NFDiscovery.NewConfiguration()
@@ -39,7 +39,7 @@ func SendSearchNFInstances(nrfUri string, targetNfType, requestNfType models.NfT
 	return result, err
 }
 
-func SearchUdmSdmInstance(ue *amf_context.AmfUe, nrfUri string, targetNfType, requestNfType models.NfType,
+func SearchUdmSdmInstance(ue *AmfUe, nrfUri string, targetNfType, requestNfType models.NfType,
 	param *Nnrf_NFDiscovery.SearchNFInstancesParamOpts,
 ) error {
 	resp, localErr := SendSearchNFInstances(nrfUri, targetNfType, requestNfType, param)
@@ -65,7 +65,7 @@ func SearchUdmSdmInstance(ue *amf_context.AmfUe, nrfUri string, targetNfType, re
 	return nil
 }
 
-func SearchNssfNSSelectionInstance(ue *amf_context.AmfUe, nrfUri string, targetNfType, requestNfType models.NfType,
+func SearchNssfNSSelectionInstance(ue *AmfUe, nrfUri string, targetNfType, requestNfType models.NfType,
 	param *Nnrf_NFDiscovery.SearchNFInstancesParamOpts,
 ) error {
 	resp, localErr := SendSearchNFInstances(nrfUri, targetNfType, requestNfType, param)
@@ -89,7 +89,7 @@ func SearchNssfNSSelectionInstance(ue *amf_context.AmfUe, nrfUri string, targetN
 	return nil
 }
 
-func SearchAmfCommunicationInstance(ue *amf_context.AmfUe, nrfUri string, targetNfType,
+func SearchAmfCommunicationInstance(ue *AmfUe, nrfUri string, targetNfType,
 	requestNfType models.NfType, param *Nnrf_NFDiscovery.SearchNFInstancesParamOpts,
 ) (err error) {
 	resp, localErr := SendSearchNFInstances(nrfUri, targetNfType, requestNfType, param)
@@ -115,29 +115,29 @@ func SearchAmfCommunicationInstance(ue *amf_context.AmfUe, nrfUri string, target
 }
 
 func SendNFInstancesUDR(nrfUri, id string) string {
-        targetNfType := models.NfType_UDR
-        requestNfType := models.NfType_AMF
-        localVarOptionals := &Nnrf_NFDiscovery.SearchNFInstancesParamOpts{
-                     //DataSet: optional.NewInterface(models.DataSetId_SUBSCRIPTION),
-        }
-        // switch types {
-        // case NFDiscoveryToUDRParamSupi:
-        //      localVarOptionals.Supi = optional.NewString(id)
-        // case NFDiscoveryToUDRParamExtGroupId:
-        //      localVarOptionals.ExternalGroupIdentity = optional.NewString(id)
-        // case NFDiscoveryToUDRParamGpsi:
-        //      localVarOptionals.Gpsi = optional.NewString(id)
-        // }
+	targetNfType := models.NfType_UDR
+	requestNfType := models.NfType_AMF
+	localVarOptionals := &Nnrf_NFDiscovery.SearchNFInstancesParamOpts{
+		//DataSet: optional.NewInterface(models.DataSetId_SUBSCRIPTION),
+	}
+	// switch types {
+	// case NFDiscoveryToUDRParamSupi:
+	//      localVarOptionals.Supi = optional.NewString(id)
+	// case NFDiscoveryToUDRParamExtGroupId:
+	//      localVarOptionals.ExternalGroupIdentity = optional.NewString(id)
+	// case NFDiscoveryToUDRParamGpsi:
+	//      localVarOptionals.Gpsi = optional.NewString(id)
+	// }
 
-        result, err := SendSearchNFInstances(nrfUri, targetNfType, requestNfType, localVarOptionals)//, localVarOptionals
-        if err != nil {
-                logger.ConsumerLog.Error(err.Error())
-                return ""
-        }
-        for _, profile := range result.NfInstances {
+	result, err := SendSearchNFInstances(nrfUri, targetNfType, requestNfType, localVarOptionals) //, localVarOptionals
+	if err != nil {
+		logger.ConsumerLog.Error(err.Error())
+		return ""
+	}
+	for _, profile := range result.NfInstances {
 		if uri := util.SearchNFServiceUri(profile, models.ServiceName_NUDR_DR, models.NfServiceStatus_REGISTERED); uri != "" {
-                        return uri
-                }
-        }
+			return uri
+		}
+	}
 	return ""
 }

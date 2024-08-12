@@ -3,11 +3,11 @@ package message
 import (
 	"fmt"
 
-	"lightcore/lightcore/lightcore/NFs/amf/internal/context"
-	gmm_common "lightcore/lightcore/lightcore/NFs/amf/internal/gmm/common"
-	"lightcore/lightcore/lightcore/NFs/amf/internal/logger"
-	ngap_message "lightcore/lightcore/lightcore/NFs/amf/internal/ngap/message"
-	"lightcore/lightcore/lightcore/NFs/amf/internal/sbi/producer/callback"
+	"github.com/AhmadRifqi86/lightcore/lightcore/NFs/amf/internal/context"
+	gmm_common "github.com/AhmadRifqi86/lightcore/lightcore/NFs/amf/internal/gmm/common"
+	"github.com/AhmadRifqi86/lightcore/lightcore/NFs/amf/internal/logger"
+	ngap_message "github.com/AhmadRifqi86/lightcore/lightcore/NFs/amf/internal/ngap/message"
+	"github.com/AhmadRifqi86/lightcore/lightcore/NFs/amf/internal/sbi/producer/callback"
 	"github.com/free5gc/nas/nasMessage"
 	"github.com/free5gc/nas/nasType"
 	"github.com/free5gc/ngap/ngapType"

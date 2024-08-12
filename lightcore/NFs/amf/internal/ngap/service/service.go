@@ -10,8 +10,8 @@ import (
 
 	"git.cs.nctu.edu.tw/calee/sctp"
 
-	"lightcore/lightcore/lightcore/NFs/amf/internal/logger"
-	"lightcore/lightcore/lightcore/NFs/amf/pkg/factory"
+	"github.com/AhmadRifqi86/lightcore/lightcore/NFs/amf/internal/logger"
+	"github.com/AhmadRifqi86/lightcore/lightcore/NFs/amf/pkg/factory"
 	"github.com/free5gc/ngap"
 )
 

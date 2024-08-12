@@ -8,10 +8,10 @@ import (
 
 	"github.com/mohae/deepcopy"
 
-	pcf_context "lightcore/lightcore/lightcore/NFs/amf/internal/context"
-	"lightcore/lightcore/lightcore/NFs/amf/internal/logger"
-	"lightcore/lightcore/lightcore/NFs/amf/internal/sbi/consumer"
-	"lightcore/lightcore/lightcore/NFs/amf/internal/util"
+	pcf_context "github.com/AhmadRifqi86/lightcore/lightcore/NFs/amf/internal/context"
+	"github.com/AhmadRifqi86/lightcore/lightcore/NFs/amf/internal/logger"
+	"github.com/AhmadRifqi86/lightcore/lightcore/NFs/amf/internal/sbi/consumer"
+	"github.com/AhmadRifqi86/lightcore/lightcore/NFs/amf/internal/util"
 	"github.com/free5gc/openapi"
 	"github.com/free5gc/openapi/models"
 
