@@ -734,28 +734,33 @@ func PostPoliciesProcedure(polAssoId string,
 	// TODO: according to PCF Policy to determine ServAreaRes, Rfsp, SuppFeat
 	// amPolicy.ServAreaRes =
 	// amPolicy.Rfsp =
-	var requestSuppFeat openapi.SupportedFeature
+	// fmt.Println("ASSIGN SUPPFEAT 1")
+	// fmt.Println(policyAssociationRequest.SuppFeat)
+	var requestSuppFeat openapi.SupportedFeature //pas disini policyAssociationRequest.SuppFeat masih nil
+	//policyAssociationRequest.SuppFeat = "ffff"
 	if suppFeat, err := openapi.NewSupportedFeature(policyAssociationRequest.SuppFeat); err != nil {
 		logger.AmPolicyLog.Warnln(err)
 	} else {
 		requestSuppFeat = suppFeat
 	}
-	fmt.Println("ASSIGN SUPPFEAT")
+	fmt.Println("ASSIGN SUPPFEAT 1") //opsi satu, assign suppFeat di sini, secara static
 	amPolicy.SuppFeat = pcfSelf.PcfSuppFeats[models.ServiceName_NPCF_AM_POLICY_CONTROL].NegotiateWith(requestSuppFeat).String()
 	if amPolicy.Rfsp != 0 {
 		response.Rfsp = amPolicy.Rfsp
 	}
 	response.SuppFeat = amPolicy.SuppFeat
-	// fmt.Println(response.SuppFeat)
+	fmt.Println(response.SuppFeat)
 	// TODO: add Reports
 	// rsp.Triggers
 	// rsp.Pras
 	fmt.Println("INCREMENT ID GENERATOR")
 	ue.PolAssociationIDGenerator++
 	logger.AmPolicyLog.Tracef("AMPolicy association Id[%s] Create", assolId)
-
+	amPolicy.SuppFeat = "3fff"
 	fmt.Println("OUT FROM POSTPROCEDURE")
 	fmt.Println(assolId)
+	fmt.Println("ASSIGN SUPPFEAT 2")
+	fmt.Println(amPolicy.SuppFeat)
 	return &response, assolId, nil
 }
 
