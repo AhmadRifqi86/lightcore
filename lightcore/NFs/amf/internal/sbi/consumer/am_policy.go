@@ -11,7 +11,7 @@ import (
 	//amf_context "github.com/AhmadRifqi86/lightcore/lightcore/amf/internal/context"
 	"github.com/AhmadRifqi86/lightcore/lightcore/NFs/amf/internal/logger"
 	//"github.com/AhmadRifqi86/lightcore/lightcore/NFs/amf/internal/sbi/misc"
-	"github.com/AhmadRifqi86/lightcore/lightcore/NFs/amf/internal/sbi/misc"
+	//"github.com/AhmadRifqi86/lightcore/lightcore/NFs/amf/internal/sbi/misc"
 	"github.com/AhmadRifqi86/lightcore/lightcore/NFs/amf/pkg/factory"
 	"github.com/free5gc/openapi"
 	"github.com/free5gc/openapi/Npcf_AMPolicy"
@@ -111,7 +111,7 @@ func AMPolicyControlCreate(ue *amf_context.AmfUe, anType models.AccessType) (*mo
 	}
 	fmt.Println("CALL postPoliciesProcedure")
 	// Simulate PostPoliciesProcedure logic locally
-	response, locationHeader, problemDetails := amfSelf.PostPoliciesProcedure("", policyAssociationRequest)
+	response, locationHeader, problemDetails := amf_context.PostPoliciesProcedure("", policyAssociationRequest)
 	fmt.Println("Response")
 	fmt.Println(response)
 	fmt.Println("locationHeader")
