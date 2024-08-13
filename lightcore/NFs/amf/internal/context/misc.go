@@ -88,6 +88,7 @@ func PostPoliciesProcedure(polAssoId string,
 
 		if amPolicy == nil {
 			amPolicy = ue.NewUeAMPolicyData(assolId, policyAssociationRequest)
+			amPolicy.SuppFeat = "3fff"
 		}
 		// fmt.Println("amData")
 		// fmt.Println(amData)
@@ -119,7 +120,7 @@ func PostPoliciesProcedure(polAssoId string,
 	fmt.Println("INCREMENT ID GENERATOR")
 	ue.PolAssociationIDGenerator++
 	logger.AmPolicyLog.Tracef("AMPolicy association Id[%s] Create", assolId)
-	amPolicy.SuppFeat = "3fff"
+
 	fmt.Println("OUT FROM POSTPROCEDURE")
 	fmt.Println(assolId)
 	fmt.Println("ASSIGN SUPPFEAT 2")
@@ -133,6 +134,11 @@ func getUdrUri(ue *UeContext) string {
 	}
 	return SendNFInstancesUDR(GetSelf().NrfUri, ue.Supi)
 }
+
+//Getter to return amPolicy.SuppFeat
+// func GetSuppFeat(ue *UeContext, polAssoId string) string{
+// 	return
+// }
 
 func getDataFromDB(collName string, filter bson.M) (map[string]interface{}, *models.ProblemDetails) {
 	fmt.Println("try getting data from DB")
