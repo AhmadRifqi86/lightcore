@@ -3,9 +3,11 @@ package producer
 import (
 	"context"
 	"encoding/hex"
+	"encoding/json"
 	"errors"
 	"net"
 	"net/http"
+	"reflect"
 
 	"github.com/antihax/optional"
 	"github.com/free5gc/nas"
@@ -21,6 +23,8 @@ import (
 	"github.com/free5gc/smf/internal/sbi/consumer"
 	"github.com/free5gc/smf/pkg/factory"
 	"github.com/free5gc/util/httpwrapper"
+	"github.com/free5gc/util/mongoapi"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 func HandlePDUSessionSMContextCreate(request models.PostSmContextsRequest) *httpwrapper.Response {
@@ -1108,7 +1112,7 @@ func GetSmDataProcedure(supi string, plmnID string, Dnn string, Snssai string, s
 
 	var querySmDataParamOpts Nudr.QuerySmDataParamOpts
 	querySmDataParamOpts.SingleNssai = optional.NewInterface(Snssai)
-
+	//Mindahin fungsi ini, yang dipanggil tuh QuerySmData di bawah
 	sessionManagementSubscriptionDataResp, res, err := clientAPI.SessionManagementSubscriptionDataApi.
 		QuerySmData(context.Background(), supi, plmnID, &querySmDataParamOpts)
 	if err != nil {
@@ -1174,4 +1178,46 @@ func GetSmDataProcedure(supi string, plmnID string, Dnn string, Snssai string, s
 
 		return nil, problemDetails
 	}
+}
+
+func QuerySmDataProcedure(collName string, ueId string, servingPlmnId string,
+	singleNssai models.Snssai, dnn string,
+) *[]map[string]interface{} {
+	filter := bson.M{"ueId": ueId, "servingPlmnId": servingPlmnId}
+
+	if !reflect.DeepEqual(singleNssai, models.Snssai{}) {
+		if singleNssai.Sd == "" {
+			filter["singleNssai.sst"] = singleNssai.Sst
+		} else {
+			filter["singleNssai.sst"] = singleNssai.Sst
+			filter["singleNssai.sd"] = singleNssai.Sd
+		}
+	}
+
+	if dnn != "" {
+		dnnKey := util.EscapeDnn(dnn)
+		filter["dnnConfigurations."+dnnKey] = bson.M{"$exists": true}
+	}
+
+	sessionManagementSubscriptionDatas, err := mongoapi.RestfulAPIGetMany(collName, filter)
+	if err != nil {
+		logger.DataRepoLog.Errorf("QuerySmDataProcedure err: %+v", err)
+		return nil
+	}
+	for _, smData := range sessionManagementSubscriptionDatas {
+		var tmpSmData models.SessionManagementSubscriptionData
+		err := json.Unmarshal(util.MapToByte(smData), &tmpSmData)
+		if err != nil {
+			logger.DataRepoLog.Debug("SmData Unmarshal error")
+			continue
+		}
+		dnnConfigurations := tmpSmData.DnnConfigurations
+		tmpDnnConfigurations := make(map[string]models.DnnConfiguration)
+		for escapedDnn, dnnConf := range dnnConfigurations {
+			dnn := util.UnescapeDnn(escapedDnn)
+			tmpDnnConfigurations[dnn] = dnnConf
+		}
+		smData["DnnConfigurations"] = tmpDnnConfigurations
+	}
+	return &sessionManagementSubscriptionDatas
 }
