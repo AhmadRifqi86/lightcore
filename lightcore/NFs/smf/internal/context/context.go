@@ -56,7 +56,7 @@ type SMFContext struct {
 	NrfUri                         string
 	NFManagementClient             *Nnrf_NFManagement.APIClient
 	NFDiscoveryClient              *Nnrf_NFDiscovery.APIClient
-	SubscriberDataManagementClient *Nudm_SubscriberDataManagement.APIClient
+	SubscriberDataManagementClient *Nudm_SubscriberDataManagement.APIClient //Defined here, 
 	Locality                       string
 	AssocFailAlertInterval         time.Duration
 	AssocFailRetryInterval         time.Duration

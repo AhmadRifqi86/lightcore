@@ -27,7 +27,7 @@ var (
 	NasLog      *logrus.Entry
 	ConsumerLog *logrus.Entry
 	EeLog       *logrus.Entry
-        AmPolicyLog *logrus.Entry
+	AmPolicyLog *logrus.Entry
 )
 
 const (
@@ -62,5 +62,5 @@ func init() {
 	NasLog = NfLog.WithField(logger_util.FieldCategory, "Nas")
 	ConsumerLog = NfLog.WithField(logger_util.FieldCategory, "Consumer")
 	EeLog = NfLog.WithField(logger_util.FieldCategory, "Ee")
-        AmPolicyLog = NfLog.WithField(logger_util.FieldCategory, "AmPol") //from pcf/internal/logger
+	AmPolicyLog = NfLog.WithField(logger_util.FieldCategory, "AmPol") //from pcf/internal/logger
 }

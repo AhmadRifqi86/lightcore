@@ -12,22 +12,22 @@ const (
 )
 
 var (
-	Log         *logrus.Logger
-	NfLog       *logrus.Entry
-	MainLog     *logrus.Entry
-	InitLog     *logrus.Entry
-	CfgLog      *logrus.Entry
-	CtxLog      *logrus.Entry
-	GinLog      *logrus.Entry
-	ConsumerLog *logrus.Entry
-	GsmLog      *logrus.Entry
-	PfcpLog     *logrus.Entry
-	PduSessLog  *logrus.Entry
-        SmPolicyLog    *logrus.Entry
-        UtilLog      *logrus.Entry
-        PolicyAuthLog *logrus.Entry
+	Log           *logrus.Logger
+	NfLog         *logrus.Entry
+	MainLog       *logrus.Entry
+	InitLog       *logrus.Entry
+	CfgLog        *logrus.Entry
+	CtxLog        *logrus.Entry
+	GinLog        *logrus.Entry
+	ConsumerLog   *logrus.Entry
+	GsmLog        *logrus.Entry
+	PfcpLog       *logrus.Entry
+	PduSessLog    *logrus.Entry
+	SmPolicyLog   *logrus.Entry
+	UtilLog       *logrus.Entry
+	PolicyAuthLog *logrus.Entry
+	SdmLog        *logrus.Entry
 )
-
 
 func init() {
 	fieldsOrder := []string{
@@ -46,7 +46,8 @@ func init() {
 	GsmLog = NfLog.WithField(logger_util.FieldCategory, "GSM")
 	PfcpLog = NfLog.WithField(logger_util.FieldCategory, "PFCP")
 	PduSessLog = NfLog.WithField(logger_util.FieldCategory, "PduSess")
-        SmPolicyLog = NfLog.WithField(logger_util.FieldCategory, "SmPol")
-        UtilLog = NfLog.WithField(logger_util.FieldCategory, "Util")
-        PolicyAuthLog = NfLog.WithField(logger_util.FieldCategory, "PolAuth")
+	SmPolicyLog = NfLog.WithField(logger_util.FieldCategory, "SmPol")
+	UtilLog = NfLog.WithField(logger_util.FieldCategory, "Util")
+	PolicyAuthLog = NfLog.WithField(logger_util.FieldCategory, "PolAuth")
+	SdmLog = NfLog.WithField(logger_util.FieldCategory, "Sdm")
 }
