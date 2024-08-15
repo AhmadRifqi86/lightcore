@@ -3,17 +3,16 @@ package context
 import (
 	"context"
 	"fmt"
-        "math"
+	"math"
 	"net"
 	"os"
-        "sync"
+	"strconv"
+	"strings"
+	"sync"
 	"sync/atomic"
 	"time"
-        "strconv"
-        "strings"
 
-	"github.com/google/uuid"
-        "github.com/free5gc/openapi"
+	"github.com/free5gc/openapi"
 	"github.com/free5gc/openapi/Nnrf_NFDiscovery"
 	"github.com/free5gc/openapi/Nnrf_NFManagement"
 	"github.com/free5gc/openapi/Nudm_SubscriberDataManagement"
@@ -21,12 +20,14 @@ import (
 	"github.com/free5gc/pfcp/pfcpType"
 	"github.com/free5gc/smf/internal/logger"
 	"github.com/free5gc/smf/pkg/factory"
-        "github.com/free5gc/util/idgenerator"
-  //      "github.com/free5gc/util/mongoapi"
+	"github.com/free5gc/util/idgenerator"
+	"github.com/google/uuid"
+	//      "github.com/free5gc/util/mongoapi"
 )
 
 func Init() {
 	smfContext.NfInstanceID = uuid.New().String()
+
 }
 
 var smfContext SMFContext
@@ -56,7 +57,7 @@ type SMFContext struct {
 	NrfUri                         string
 	NFManagementClient             *Nnrf_NFManagement.APIClient
 	NFDiscoveryClient              *Nnrf_NFDiscovery.APIClient
-	SubscriberDataManagementClient *Nudm_SubscriberDataManagement.APIClient //Defined here, 
+	SubscriberDataManagementClient *Nudm_SubscriberDataManagement.APIClient //Defined here,
 	Locality                       string
 	AssocFailAlertInterval         time.Duration
 	AssocFailRetryInterval         time.Duration
@@ -76,34 +77,35 @@ type SMFContext struct {
 	UEPreConfigPathPool map[string]*UEPreConfigPaths
 	UEDefaultPathPool   map[string]*UEDefaultPaths
 	LocalSEIDCount      uint64
-        // SM Policy 
-        NfService       map[models.ServiceName]models.NfService
-        PcfServiceUris  map[models.ServiceName]string
-        PcfSuppFeats    map[models.ServiceName]openapi.SupportedFeature
-//        pcfUePool       sync.Map
-        AppSessionPool  sync.Map
-        PcfUePool       sync.Map
-      //From UDM
-        UdmUePool       sync.Map
+	// SM Policy
+	NfService      map[models.ServiceName]models.NfService
+	PcfServiceUris map[models.ServiceName]string
+	PcfSuppFeats   map[models.ServiceName]openapi.SupportedFeature
+	//        pcfUePool       sync.Map
+	AppSessionPool sync.Map
+	PcfUePool      sync.Map
+	//From UDM
+	UdmUePool                 sync.Map
+	EeSubscriptionIDGenerator *idgenerator.IDGenerator
 }
 
 type AMFStatusSubscriptionData struct {
-        AmfUri       string
-        AmfStatusUri string
-        GuamiList    []models.Guami
+	AmfUri       string
+	AmfStatusUri string
+	GuamiList    []models.Guami
 }
 
 type AppSessionData struct {
-        AppSessionId      string
-        AppSessionContext *models.AppSessionContext
-        // (compN/compN-subCompN/appId-%s) map to PccRule
-        RelatedPccRuleIds    map[string]string
-        PccRuleIdMapToCompId map[string]string
-        // EventSubscription
-        Events   map[models.AfEvent]models.AfNotifMethod
-        EventUri string
-        // related Session
-        SmPolicyData *UeSmPolicyData
+	AppSessionId      string
+	AppSessionContext *models.AppSessionContext
+	// (compN/compN-subCompN/appId-%s) map to PccRule
+	RelatedPccRuleIds    map[string]string
+	PccRuleIdMapToCompId map[string]string
+	// EventSubscription
+	Events   map[models.AfEvent]models.AfNotifMethod
+	EventUri string
+	// related Session
+	SmPolicyData *UeSmPolicyData
 }
 
 type UdmUeContext struct {
@@ -131,7 +133,7 @@ type UdmUeContext struct {
 	SmSubsDataLock                    sync.RWMutex
 }
 
-var InfluenceDataUpdateNotifyUri=factory.PcfCallbackResUriPrefix + "/nudr-notify/influence-data"
+var InfluenceDataUpdateNotifyUri = factory.PcfCallbackResUriPrefix + "/nudr-notify/influence-data"
 
 func ResolveIP(host string) net.IP {
 	if addr, err := net.ResolveIPAddr("ip", host); err != nil {
@@ -139,6 +141,12 @@ func ResolveIP(host string) net.IP {
 	} else {
 		return addr.IP
 	}
+}
+
+func (ue *UdmUeContext) Init() {
+	ue.UdmSubsToNotify = make(map[string]*models.SubscriptionDataSubscriptions)
+	ue.EeSubscriptions = make(map[string]*models.EeSubscription)
+	ue.SubscribeToNotifChange = make(map[string]*models.SdmSubscription)
 }
 
 func (s *SMFContext) ExternalIP() net.IP {
@@ -293,41 +301,41 @@ func InitSmfContext(config *factory.Config) {
 	smfContext.UserPlaneInformation = NewUserPlaneInformation(&configuration.UserPlaneInformation)
 
 	SetupNFProfile(config)
-        //serviceList := configuration.ServiceList
-        //smfContext.InitNFService(serviceList, config.Info.Version)
+	//serviceList := configuration.ServiceList
+	//smfContext.InitNFService(serviceList, config.Info.Version)
 	smfContext.Locality = configuration.Locality
-        smfContext.PcfServiceUris = make(map[models.ServiceName]string)
-        smfContext.PcfSuppFeats = make(map[models.ServiceName]openapi.SupportedFeature)
+	smfContext.PcfServiceUris = make(map[models.ServiceName]string)
+	smfContext.PcfSuppFeats = make(map[models.ServiceName]openapi.SupportedFeature)
 }
 
-//InitNFService  func (c *SMFContext) InitNFService(serviceList []factory.Service, version string)
+// InitNFService  func (c *SMFContext) InitNFService(serviceList []factory.Service, version string)
 func (c *SMFContext) InitNFService(serviceList []factory.Service, version string) {
-        tmpVersion := strings.Split(version, ".")
-        versionUri := "v" + tmpVersion[0]
-        for index, service := range serviceList {
-                name := models.ServiceName(service.ServiceName)
-                c.NfService[name] = models.NfService{
-                        ServiceInstanceId: strconv.Itoa(index),
-                        ServiceName:       name,
-                        Versions: &[]models.NfServiceVersion{
-                                {
-                                        ApiFullVersion:  version,
-                                        ApiVersionInUri: versionUri,
-                                },
-                        },
-                        Scheme:          c.URIScheme,
-                        NfServiceStatus: models.NfServiceStatus_REGISTERED,
-                        ApiPrefix:       c.GetIPv4Uri(),
-                        IpEndPoints: &[]models.IpEndPoint{
-                                {
-                                        Ipv4Address: c.RegisterIPv4,
-                                        Transport:   models.TransportProtocol_TCP,
-                                        Port:        int32(c.SBIPort),
-                                },
-                        },
-                        SupportedFeatures: service.SuppFeat,
-                }
-        }
+	tmpVersion := strings.Split(version, ".")
+	versionUri := "v" + tmpVersion[0]
+	for index, service := range serviceList {
+		name := models.ServiceName(service.ServiceName)
+		c.NfService[name] = models.NfService{
+			ServiceInstanceId: strconv.Itoa(index),
+			ServiceName:       name,
+			Versions: &[]models.NfServiceVersion{
+				{
+					ApiFullVersion:  version,
+					ApiVersionInUri: versionUri,
+				},
+			},
+			Scheme:          c.URIScheme,
+			NfServiceStatus: models.NfServiceStatus_REGISTERED,
+			ApiPrefix:       c.GetIPv4Uri(),
+			IpEndPoints: &[]models.IpEndPoint{
+				{
+					Ipv4Address: c.RegisterIPv4,
+					Transport:   models.TransportProtocol_TCP,
+					Port:        int32(c.SBIPort),
+				},
+			},
+			SupportedFeatures: service.SuppFeat,
+		}
+	}
 }
 
 func InitSMFUERouting(routingConfig *factory.RoutingConfig) {
@@ -379,124 +387,132 @@ func GetUEDefaultPathPool(groupName string) *UEDefaultPaths {
 }
 
 func GetUri(name models.ServiceName) string {
-        return smfContext.PcfServiceUris[name]
+	return smfContext.PcfServiceUris[name]
 }
 
 // defined at PCF
 func (c *SMFContext) NewPCFUe(Supi string) (*UeContext, error) {
-        if strings.HasPrefix(Supi, "imsi-") {
-                newUeContext := &UeContext{}
-                newUeContext.SmPolicyData = make(map[string]*UeSmPolicyData)
-                newUeContext.AMPolicyData = make(map[string]*UeAMPolicyData)
-                newUeContext.PolAssociationIDGenerator = 1
-                newUeContext.AppSessionIDGenerator = idgenerator.NewGenerator(1, math.MaxInt64)
-                newUeContext.Supi = Supi
-                c.PcfUePool.Store(Supi, newUeContext)
-                return newUeContext, nil
-        } else {
-                return nil, fmt.Errorf(" add Ue context fail ")
-        }
+	if strings.HasPrefix(Supi, "imsi-") {
+		newUeContext := &UeContext{}
+		newUeContext.SmPolicyData = make(map[string]*UeSmPolicyData)
+		newUeContext.AMPolicyData = make(map[string]*UeAMPolicyData)
+		newUeContext.PolAssociationIDGenerator = 1
+		newUeContext.AppSessionIDGenerator = idgenerator.NewGenerator(1, math.MaxInt64)
+		newUeContext.Supi = Supi
+		c.PcfUePool.Store(Supi, newUeContext)
+		return newUeContext, nil
+	} else {
+		return nil, fmt.Errorf(" add Ue context fail ")
+	}
 }
-
-
 
 func (c *SMFContext) PCFUeFindByPolicyId(PolicyId string) *UeContext {
-        index := strings.LastIndex(PolicyId, "-")
-        if index == -1 {
-                return nil
-        }
-        supi := PolicyId[:index]
-        if supi != "" {
-                if value, ok := c.PcfUePool.Load(supi); ok {
-                        ueContext := value.(*UeContext)
-                        return ueContext
-                }
-        }
-        return nil
+	index := strings.LastIndex(PolicyId, "-")
+	if index == -1 {
+		return nil
+	}
+	supi := PolicyId[:index]
+	if supi != "" {
+		if value, ok := c.PcfUePool.Load(supi); ok {
+			ueContext := value.(*UeContext)
+			return ueContext
+		}
+	}
+	return nil
 }
-
 
 func (c *SMFContext) PCFUeFindByAppSessionId(appSessionId string) *UeContext {
-        index := strings.LastIndex(appSessionId, "-")
-        if index == -1 {
-                return nil
-        }
-        supi := appSessionId[:index]
-        if supi != "" {
-                if value, ok := c.PcfUePool.Load(supi); ok {
-                        ueContext := value.(*UeContext)
-                        return ueContext
-                }
-        }
-        return nil
+	index := strings.LastIndex(appSessionId, "-")
+	if index == -1 {
+		return nil
+	}
+	supi := appSessionId[:index]
+	if supi != "" {
+		if value, ok := c.PcfUePool.Load(supi); ok {
+			ueContext := value.(*UeContext)
+			return ueContext
+		}
+	}
+	return nil
 }
-
 
 func ueSMPolicyFindByAppSessionContext(ue *UeContext, req *models.AppSessionContextReqData) (*UeSmPolicyData, error) {
-        var policy *UeSmPolicyData
-        var err error
+	var policy *UeSmPolicyData
+	var err error
 
-        if req.UeIpv4 != "" {
-                policy = ue.SMPolicyFindByIdentifiersIpv4(req.UeIpv4, req.SliceInfo, req.Dnn, req.IpDomain)
-                if policy == nil {
-                        err = fmt.Errorf("Can't find Ue with Ipv4[%s]", req.UeIpv4)
-                }
-        } else if req.UeIpv6 != "" {
-                policy = ue.SMPolicyFindByIdentifiersIpv6(req.UeIpv6, req.SliceInfo, req.Dnn)
-                if policy == nil {
-                        err = fmt.Errorf("Can't find Ue with Ipv6 prefix[%s]", req.UeIpv6)
-                }
-        } else {
-                // TODO: find by MAC address
-                err = fmt.Errorf("Ue finding by MAC address does not support")
-        }
-        return policy, err
+	if req.UeIpv4 != "" {
+		policy = ue.SMPolicyFindByIdentifiersIpv4(req.UeIpv4, req.SliceInfo, req.Dnn, req.IpDomain)
+		if policy == nil {
+			err = fmt.Errorf("Can't find Ue with Ipv4[%s]", req.UeIpv4)
+		}
+	} else if req.UeIpv6 != "" {
+		policy = ue.SMPolicyFindByIdentifiersIpv6(req.UeIpv6, req.SliceInfo, req.Dnn)
+		if policy == nil {
+			err = fmt.Errorf("Can't find Ue with Ipv6 prefix[%s]", req.UeIpv6)
+		}
+	} else {
+		// TODO: find by MAC address
+		err = fmt.Errorf("Ue finding by MAC address does not support")
+	}
+	return policy, err
 }
-
 
 func (c *SMFContext) SessionBinding(req *models.AppSessionContextReqData) (*UeSmPolicyData, error) {
-        var selectedUE *UeContext
-        var policy *UeSmPolicyData
-        var err error
+	var selectedUE *UeContext
+	var policy *UeSmPolicyData
+	var err error
 
-        if req.Supi != "" {
-                if val, exist := c.PcfUePool.Load(req.Supi); exist {
-                        selectedUE = val.(*UeContext)
-                }
-        }
+	if req.Supi != "" {
+		if val, exist := c.PcfUePool.Load(req.Supi); exist {
+			selectedUE = val.(*UeContext)
+		}
+	}
 
-        if req.Gpsi != "" && selectedUE == nil {
-                c.PcfUePool.Range(func(key, value interface{}) bool {
-                        ue := value.(*UeContext)
-                        if ue.Gpsi == req.Gpsi {
-                                selectedUE = ue
-                                return false
-                        } else {
-                                return true
-                        }
-                })
-        }
+	if req.Gpsi != "" && selectedUE == nil {
+		c.PcfUePool.Range(func(key, value interface{}) bool {
+			ue := value.(*UeContext)
+			if ue.Gpsi == req.Gpsi {
+				selectedUE = ue
+				return false
+			} else {
+				return true
+			}
+		})
+	}
 
-        if selectedUE != nil {
-                policy, err = ueSMPolicyFindByAppSessionContext(selectedUE, req)
-        } else {
-                c.PcfUePool.Range(func(key, value interface{}) bool {
-                        ue := value.(*UeContext)
-                        policy, err = ueSMPolicyFindByAppSessionContext(ue, req)
-                        return true
-                })
-        }
-        if policy == nil && err == nil {
-                err = fmt.Errorf("No SM policy found")
-        }
-        return policy, err
+	if selectedUE != nil {
+		policy, err = ueSMPolicyFindByAppSessionContext(selectedUE, req)
+	} else {
+		c.PcfUePool.Range(func(key, value interface{}) bool {
+			ue := value.(*UeContext)
+			policy, err = ueSMPolicyFindByAppSessionContext(ue, req)
+			return true
+		})
+	}
+	if policy == nil && err == nil {
+		err = fmt.Errorf("No SM policy found")
+	}
+	return policy, err
 }
-
 
 func (c *SMFContext) GetIPv4Uri() string {
-        return fmt.Sprintf("%s://%s:%d", c.URIScheme, c.RegisterIPv4, c.SBIPort)
+	return fmt.Sprintf("%s://%s:%d", c.URIScheme, c.RegisterIPv4, c.SBIPort)
 }
 
-
-
 //Where is my UDM function? NewUdmUe and UdmUeFindBySupi
+
+func (context *SMFContext) UdmUeFindBySupi(supi string) (*UdmUeContext, bool) {
+	if value, ok := context.UdmUePool.Load(supi); ok {
+		return value.(*UdmUeContext), ok
+	} else {
+		return nil, false
+	}
+}
+
+func (context *SMFContext) NewUdmUe(supi string) *UdmUeContext {
+	ue := new(UdmUeContext)
+	ue.Init()
+	ue.Supi = supi
+	context.UdmUePool.Store(supi, ue)
+	return ue
+}

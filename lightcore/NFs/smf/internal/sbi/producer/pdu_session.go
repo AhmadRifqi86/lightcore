@@ -1138,9 +1138,9 @@ func GetSmDataProcedure(supi string, plmnID string, Dnn string, Snssai string, s
 	}()
 	//besok ngubah ini
 	if res.StatusCode == http.StatusOK {
-		udmUe, ok := GetSelf().UdmUeFindBySupi(supi)
+		udmUe, ok := smf_context.GetSelf().UdmUeFindBySupi(supi)
 		if !ok {
-			udmUe = GetSelf().NewUdmUe(supi)
+			udmUe = smf_context.GetSelf().NewUdmUe(supi)
 		}
 		smData, snssaikey, AllDnnConfigsbyDnn, AllDnns := udm_context.Getself().ManageSmData(
 			sessionManagementSubscriptionDataResp, Snssai, Dnn)
