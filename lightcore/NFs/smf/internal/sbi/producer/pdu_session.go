@@ -1142,7 +1142,7 @@ func GetSmDataProcedure(supi string, plmnID string, Dnn string, Snssai string, s
 		if !ok {
 			udmUe = smf_context.GetSelf().NewUdmUe(supi)
 		}
-		smData, snssaikey, AllDnnConfigsbyDnn, AllDnns := udm_context.Getself().ManageSmData(
+		smData, snssaikey, AllDnnConfigsbyDnn, AllDnns := smf_context.GetSelf().ManageSmData(
 			sessionManagementSubscriptionDataResp, Snssai, Dnn)
 		udmUe.SetSMSubsData(smData)
 
