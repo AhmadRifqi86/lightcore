@@ -5,18 +5,17 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net"
 	"net/http"
 	"reflect"
 	"strings"
 
-	"github.com/antihax/optional"
 	"github.com/free5gc/nas"
 	"github.com/free5gc/nas/nasMessage"
 	"github.com/free5gc/openapi"
 	"github.com/free5gc/openapi/Namf_Communication"
 	"github.com/free5gc/openapi/Nsmf_PDUSession"
-	Nudr "github.com/free5gc/openapi/Nudr_DataRepository"
 	"github.com/free5gc/openapi/models"
 	"github.com/free5gc/pfcp/pfcpType"
 	smf_context "github.com/free5gc/smf/internal/context"
@@ -285,6 +284,8 @@ func HandlePDUSessionSMContextCreate(request models.PostSmContextsRequest) *http
 	smNssaiString := strings.Join(smNssaiArray, "")
 
 	responseData, problemDetails := GetSmDataProcedure(smContext.Supi, smPlmnIDString, createData.Dnn, smNssaiString, "")
+	fmt.Println("GetSmDataProcedure:")
+	fmt.Println(responseData)
 	if problemDetails != nil {
 		smContext.Log.Errorln("Get SessionManagementSubscriptionData error:", problemDetails.Detail)
 	} else {
@@ -1287,83 +1288,169 @@ func sendGSMPDUSessionModificationCommand(smContext *smf_context.SMContext, nasP
 	}
 }
 
+// func GetSmDataProcedure(supi string, plmnID string, Dnn string, Snssai string, supportedFeatures string) (
+// 	response interface{}, problemDetails *models.ProblemDetails,
+// ) {
+// 	logger.SdmLog.Infof("getSmDataProcedure: SUPI[%s] PLMNID[%s] DNN[%s] SNssai[%s]", supi, plmnID, Dnn, Snssai)
+// 	//besok ngubah ini
+// 	clientAPI, err := createUDMClientToUDR(supi)
+// 	if err != nil {
+// 		return nil, openapi.ProblemDetailsSystemFailure(err.Error())
+// 	}
+
+// 	var querySmDataParamOpts Nudr.QuerySmDataParamOpts
+// 	querySmDataParamOpts.SingleNssai = optional.NewInterface(Snssai)
+// 	//Mindahin fungsi ini, yang dipanggil tuh QuerySmData di bawah
+// 	sessionManagementSubscriptionDataResp, res, err := clientAPI.SessionManagementSubscriptionDataApi.
+// 		QuerySmData(context.Background(), supi, plmnID, &querySmDataParamOpts)
+// 	if err != nil {
+// 		if res == nil {
+// 			logger.SdmLog.Warnln(err)
+// 		} else if err.Error() != res.Status {
+// 			logger.SdmLog.Warnln(err)
+// 		} else {
+// 			logger.SdmLog.Warnln(err)
+// 			problemDetails = &models.ProblemDetails{
+// 				Status: int32(res.StatusCode),
+// 				Cause:  err.(openapi.GenericOpenAPIError).Model().(models.ProblemDetails).Cause,
+// 				Detail: err.Error(),
+// 			}
+
+// 			return nil, problemDetails
+// 		}
+// 	}
+// 	defer func() {
+// 		if rspCloseErr := res.Body.Close(); rspCloseErr != nil {
+// 			logger.SdmLog.Errorf("QuerySmData response body cannot close: %+v", rspCloseErr)
+// 		}
+// 	}()
+// 	//besok ngubah ini
+// 	if res.StatusCode == http.StatusOK {
+// 		udmUe, ok := smf_context.GetSelf().UdmUeFindBySupi(supi)
+// 		if !ok {
+// 			udmUe = smf_context.GetSelf().NewUdmUe(supi)
+// 		}
+// 		smData, snssaikey, AllDnnConfigsbyDnn, AllDnns := smf_context.GetSelf().ManageSmData(
+// 			sessionManagementSubscriptionDataResp, Snssai, Dnn)
+// 		udmUe.SetSMSubsData(smData)
+
+// 		rspSMSubDataList := make([]models.SessionManagementSubscriptionData, 0, 4)
+
+// 		udmUe.SmSubsDataLock.RLock()
+// 		for _, eachSMSubData := range udmUe.SessionManagementSubsData {
+// 			rspSMSubDataList = append(rspSMSubDataList, eachSMSubData)
+// 		}
+// 		udmUe.SmSubsDataLock.RUnlock()
+
+// 		switch {
+// 		case Snssai == "" && Dnn == "":
+// 			return AllDnns, nil
+// 		case Snssai != "" && Dnn == "":
+// 			udmUe.SmSubsDataLock.RLock()
+// 			defer udmUe.SmSubsDataLock.RUnlock()
+// 			return udmUe.SessionManagementSubsData[snssaikey].DnnConfigurations, nil
+// 		case Snssai == "" && Dnn != "":
+// 			return AllDnnConfigsbyDnn, nil
+// 		case Snssai != "" && Dnn != "":
+// 			return rspSMSubDataList, nil
+// 		default:
+// 			udmUe.SmSubsDataLock.RLock()
+// 			defer udmUe.SmSubsDataLock.RUnlock()
+// 			return udmUe.SessionManagementSubsData, nil
+// 		}
+// 	} else {
+// 		problemDetails = &models.ProblemDetails{
+// 			Status: http.StatusNotFound,
+// 			Cause:  "DATA_NOT_FOUND",
+// 		}
+
+// 		return nil, problemDetails
+// 	}
+// }
+
+// New Function
 func GetSmDataProcedure(supi string, plmnID string, Dnn string, Snssai string, supportedFeatures string) (
 	response interface{}, problemDetails *models.ProblemDetails,
 ) {
 	logger.SdmLog.Infof("getSmDataProcedure: SUPI[%s] PLMNID[%s] DNN[%s] SNssai[%s]", supi, plmnID, Dnn, Snssai)
-	//besok ngubah ini
-	clientAPI, err := createUDMClientToUDR(supi)
+
+	// Konversi Snssai menjadi models.Snssai
+	var snssaiObj models.Snssai
+	err := json.Unmarshal([]byte(Snssai), &snssaiObj)
 	if err != nil {
+		logger.SdmLog.Warnf("Failed to unmarshal Snssai: %v", err)
 		return nil, openapi.ProblemDetailsSystemFailure(err.Error())
 	}
-
-	var querySmDataParamOpts Nudr.QuerySmDataParamOpts
-	querySmDataParamOpts.SingleNssai = optional.NewInterface(Snssai)
-	//Mindahin fungsi ini, yang dipanggil tuh QuerySmData di bawah
-	sessionManagementSubscriptionDataResp, res, err := clientAPI.SessionManagementSubscriptionDataApi.
-		QuerySmData(context.Background(), supi, plmnID, &querySmDataParamOpts)
-	if err != nil {
-		if res == nil {
-			logger.SdmLog.Warnln(err)
-		} else if err.Error() != res.Status {
-			logger.SdmLog.Warnln(err)
-		} else {
-			logger.SdmLog.Warnln(err)
-			problemDetails = &models.ProblemDetails{
-				Status: int32(res.StatusCode),
-				Cause:  err.(openapi.GenericOpenAPIError).Model().(models.ProblemDetails).Cause,
-				Detail: err.Error(),
-			}
-
-			return nil, problemDetails
-		}
-	}
-	defer func() {
-		if rspCloseErr := res.Body.Close(); rspCloseErr != nil {
-			logger.SdmLog.Errorf("QuerySmData response body cannot close: %+v", rspCloseErr)
-		}
-	}()
-	//besok ngubah ini
-	if res.StatusCode == http.StatusOK {
-		udmUe, ok := smf_context.GetSelf().UdmUeFindBySupi(supi)
-		if !ok {
-			udmUe = smf_context.GetSelf().NewUdmUe(supi)
-		}
-		smData, snssaikey, AllDnnConfigsbyDnn, AllDnns := smf_context.GetSelf().ManageSmData(
-			sessionManagementSubscriptionDataResp, Snssai, Dnn)
-		udmUe.SetSMSubsData(smData)
-
-		rspSMSubDataList := make([]models.SessionManagementSubscriptionData, 0, 4)
-
-		udmUe.SmSubsDataLock.RLock()
-		for _, eachSMSubData := range udmUe.SessionManagementSubsData {
-			rspSMSubDataList = append(rspSMSubDataList, eachSMSubData)
-		}
-		udmUe.SmSubsDataLock.RUnlock()
-
-		switch {
-		case Snssai == "" && Dnn == "":
-			return AllDnns, nil
-		case Snssai != "" && Dnn == "":
-			udmUe.SmSubsDataLock.RLock()
-			defer udmUe.SmSubsDataLock.RUnlock()
-			return udmUe.SessionManagementSubsData[snssaikey].DnnConfigurations, nil
-		case Snssai == "" && Dnn != "":
-			return AllDnnConfigsbyDnn, nil
-		case Snssai != "" && Dnn != "":
-			return rspSMSubDataList, nil
-		default:
-			udmUe.SmSubsDataLock.RLock()
-			defer udmUe.SmSubsDataLock.RUnlock()
-			return udmUe.SessionManagementSubsData, nil
-		}
-	} else {
+	colName := "subscriptionData.provisionedData.smData"
+	// Panggil QuerySmDataProcedure secara langsung tanpa HTTPS
+	sessionManagementSubscriptionDatas := QuerySmDataProcedure(colName, supi, plmnID, snssaiObj, Dnn)
+	fmt.Println("QuerySmDataProcedure")
+	fmt.Println(sessionManagementSubscriptionDatas)
+	if sessionManagementSubscriptionDatas == nil {
 		problemDetails = &models.ProblemDetails{
 			Status: http.StatusNotFound,
 			Cause:  "DATA_NOT_FOUND",
 		}
-
 		return nil, problemDetails
+	}
+	//marshal
+	smDataSlice := make([]models.SessionManagementSubscriptionData, 0, len(*sessionManagementSubscriptionDatas))
+
+	for _, smDataMap := range *sessionManagementSubscriptionDatas {
+		var smData models.SessionManagementSubscriptionData
+		// Konversi map ke struct models.SessionManagementSubscriptionData
+		byteData, err := json.Marshal(smDataMap)
+		if err != nil {
+			logger.SdmLog.Warnf("Error marshalling map to JSON: %v", err)
+			continue
+		}
+
+		err = json.Unmarshal(byteData, &smData)
+		if err != nil {
+			logger.SdmLog.Warnf("Error unmarshalling JSON to struct: %v", err)
+			continue
+		}
+
+		// Append hasil konversi ke smDataSlice
+		smDataSlice = append(smDataSlice, smData)
+	}
+	fmt.Println("Entering ManageSmData")
+	fmt.Println(smDataSlice)
+
+	// Return nya QuerySmDataProcedure() adalah *[]map[string]interface{}, param nya ManageSmData() []map[string]interface{}
+	smData, snssaikey, AllDnnConfigsbyDnn, AllDnns := smf_context.GetSelf().ManageSmData(
+		smDataSlice, Snssai, Dnn)
+
+	udmUe, ok := smf_context.GetSelf().UdmUeFindBySupi(supi)
+	if !ok {
+		udmUe = smf_context.GetSelf().NewUdmUe(supi)
+	}
+	udmUe.SetSMSubsData(smData)
+
+	rspSMSubDataList := make([]models.SessionManagementSubscriptionData, 0, 4)
+
+	udmUe.SmSubsDataLock.RLock()
+	for _, eachSMSubData := range udmUe.SessionManagementSubsData {
+		rspSMSubDataList = append(rspSMSubDataList, eachSMSubData)
+	}
+	udmUe.SmSubsDataLock.RUnlock()
+
+	// Logika untuk menentukan response
+	switch {
+	case Snssai == "" && Dnn == "":
+		return AllDnns, nil
+	case Snssai != "" && Dnn == "":
+		udmUe.SmSubsDataLock.RLock()
+		defer udmUe.SmSubsDataLock.RUnlock()
+		return udmUe.SessionManagementSubsData[snssaikey].DnnConfigurations, nil
+	case Snssai == "" && Dnn != "":
+		return AllDnnConfigsbyDnn, nil
+	case Snssai != "" && Dnn != "":
+		return rspSMSubDataList, nil
+	default:
+		udmUe.SmSubsDataLock.RLock()
+		defer udmUe.SmSubsDataLock.RUnlock()
+		return udmUe.SessionManagementSubsData, nil
 	}
 }
 
