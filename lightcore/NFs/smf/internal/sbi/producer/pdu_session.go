@@ -8,6 +8,7 @@ import (
 	"net"
 	"net/http"
 	"reflect"
+	"strings"
 
 	"github.com/antihax/optional"
 	"github.com/free5gc/nas"
@@ -21,15 +22,207 @@ import (
 	smf_context "github.com/free5gc/smf/internal/context"
 	"github.com/free5gc/smf/internal/logger"
 	"github.com/free5gc/smf/internal/sbi/consumer"
+	util "github.com/free5gc/smf/internal/util"
 	"github.com/free5gc/smf/pkg/factory"
 	"github.com/free5gc/util/httpwrapper"
 	"github.com/free5gc/util/mongoapi"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
+//old function
+//func HandlePDUSessionSMContextCreate(request models.PostSmContextsRequest) *httpwrapper.Response {
+// 	// GSM State
+// 	// PDU Session Establishment Accept/Reject
+// 	var response models.PostSmContextsResponse
+// 	response.JsonData = new(models.SmContextCreatedData)
+// 	logger.PduSessLog.Infoln("In HandlePDUSessionSMContextCreate")
+
+// 	// Check has PDU Session Establishment Request
+// 	m := nas.NewMessage()
+// 	if err := m.GsmMessageDecode(&request.BinaryDataN1SmMessage); err != nil ||
+// 		m.GsmHeader.GetMessageType() != nas.MsgTypePDUSessionEstablishmentRequest {
+// 		logger.PduSessLog.Warnln("GsmMessageDecode Error: ", err)
+// 		httpResponse := &httpwrapper.Response{
+// 			Header: nil,
+// 			Status: http.StatusForbidden,
+// 			Body: models.PostSmContextsErrorResponse{
+// 				JsonData: &models.SmContextCreateError{
+// 					Error: &Nsmf_PDUSession.N1SmError,
+// 				},
+// 			},
+// 		}
+// 		return httpResponse
+// 	}
+
+// 	createData := request.JsonData
+// 	// Check duplicate SM Context
+// 	if dup_smCtx := smf_context.GetSMContextById(createData.Supi, createData.PduSessionId); dup_smCtx != nil {
+// 		HandlePDUSessionSMContextLocalRelease(dup_smCtx, createData)
+// 	}
+
+// 	smContext := smf_context.NewSMContext(createData.Supi, createData.PduSessionId)
+// 	smContext.SetState(smf_context.ActivePending)
+// 	smContext.SmContextCreateData = createData
+// 	smContext.SmStatusNotifyUri = createData.SmContextStatusUri
+
+// 	smContext.SMLock.Lock()
+// 	needUnlock := true
+// 	defer func() {
+// 		if needUnlock {
+// 			smContext.SMLock.Unlock()
+// 		}
+// 	}()
+
+// 	upi := smf_context.GetUserPlaneInformation()
+// 	upi.Mu.RLock()
+// 	defer upi.Mu.RUnlock()
+
+// 	// DNN Information from config
+// 	smContext.DNNInfo = smf_context.RetrieveDnnInformation(smContext.SNssai, smContext.Dnn)
+// 	if smContext.DNNInfo == nil {
+// 		logger.PduSessLog.Errorf("S-NSSAI[sst: %d, sd: %s] DNN[%s] not matched DNN Config",
+// 			smContext.SNssai.Sst, smContext.SNssai.Sd, smContext.Dnn)
+// 	}
+// 	smContext.Log.Debugf("S-NSSAI[sst: %d, sd: %s] DNN[%s]",
+// 		smContext.SNssai.Sst, smContext.SNssai.Sd, smContext.Dnn)
+
+// 	// Query UDM
+// 	if problemDetails, err := consumer.SendNFDiscoveryUDM(); err != nil {
+// 		smContext.Log.Warnf("Send NF Discovery Serving UDM Error[%v]", err)
+// 	} else if problemDetails != nil {
+// 		smContext.Log.Warnf("Send NF Discovery Serving UDM Problem[%+v]", problemDetails)
+// 	} else {
+// 		smContext.Log.Infoln("Send NF Discovery Serving UDM Successfully")
+// 	}
+
+// 	smPlmnID := createData.Guami.PlmnId
+
+// 	// Alih-alih membuat permintaan HTTP, langsung panggil fungsi producer
+// 	response, problemDetails := GetSmDataProcedure(smContext.Supi, smPlmnID, createData.Dnn, smContext.SNssai, "") // supportedFeatures, jika diperlukan, bisa ditambahkan)
+
+// 	if problemDetails != nil {
+// 		smContext.Log.Errorln("Get SessionManagementSubscriptionData error:", problemDetails.Detail)
+// 	} else {
+// 		if response != nil {
+// 			smContext.DnnConfiguration = response.(map[string]models.DnnConfiguration)[smContext.Dnn]
+// 			// UP Security info present in session management subscription data
+// 			if smContext.DnnConfiguration.UpSecurity != nil {
+// 				smContext.UpSecurity = smContext.DnnConfiguration.UpSecurity
+// 			}
+// 		} else {
+// 			smContext.Log.Errorln("SessionManagementSubscriptionData from UDM is nil")
+// 		}
+// 	}
+
+// 	establishmentRequest := m.PDUSessionEstablishmentRequest
+// 	if err := HandlePDUSessionEstablishmentRequest(smContext, establishmentRequest); err != nil {
+// 		smContext.Log.Errorf("PDU Session Establishment fail by %s", err)
+// 		gsmError := &GSMError{}
+// 		if errors.As(err, &gsmError) {
+// 			return makeEstRejectResAndReleaseSMContext(smContext,
+// 				gsmError.GSMCause,
+// 				&Nsmf_PDUSession.N1SmError)
+// 		}
+// 		return makeEstRejectResAndReleaseSMContext(smContext,
+// 			nasMessage.Cause5GSMRequestRejectedUnspecified,
+// 			&Nsmf_PDUSession.N1SmError)
+// 	}
+
+// 	// Discover and new Namf_Comm client for use later
+// 	if problemDetails, err := consumer.SendNFDiscoveryServingAMF(smContext); err != nil {
+// 		smContext.Log.Warnf("Send NF Discovery Serving AMF Error[%v]", err)
+// 	} else if problemDetails != nil {
+// 		smContext.Log.Warnf("Send NF Discovery Serving AMF Problem[%+v]", problemDetails)
+// 	} else {
+// 		smContext.Log.Traceln("Send NF Discovery Serving AMF successfully")
+// 	}
+
+// 	for _, service := range *smContext.AMFProfile.NfServices {
+// 		if service.ServiceName == models.ServiceName_NAMF_COMM {
+// 			communicationConf := Namf_Communication.NewConfiguration()
+// 			communicationConf.SetBasePath(service.ApiPrefix)
+// 			smContext.CommunicationClient = Namf_Communication.NewAPIClient(communicationConf)
+// 		}
+// 	}
+
+// 	if err := smContext.AllocUeIP(); err != nil {
+// 		smContext.SetState(smf_context.InActive)
+// 		smContext.Log.Errorf("PDUSessionSMContextCreate err: %v", err)
+// 		return makeEstRejectResAndReleaseSMContext(smContext,
+// 			nasMessage.Cause5GSMInsufficientResourcesForSpecificSliceAndDNN,
+// 			&Nsmf_PDUSession.InsufficientResourceSliceDnn)
+// 	}
+
+// 	if err := smContext.PCFSelection(); err != nil {
+// 		smContext.Log.Errorln("pcf selection error:", err)
+// 	}
+
+// 	smPolicyID, smPolicyDecision, err := consumer.SendSMPolicyAssociationCreate(smContext)
+// 	if err != nil {
+// 		if openapiError, ok := err.(openapi.GenericOpenAPIError); ok {
+// 			problemDetails := openapiError.Model().(models.ProblemDetails)
+// 			smContext.Log.Errorln("setup sm policy association failed:", err, problemDetails)
+// 			smContext.SetState(smf_context.InActive)
+// 			if problemDetails.Cause == "USER_UNKNOWN" {
+// 				return makeEstRejectResAndReleaseSMContext(smContext,
+// 					nasMessage.Cause5GSMRequestRejectedUnspecified,
+// 					&Nsmf_PDUSession.SubscriptionDenied)
+// 			}
+// 		}
+// 		return makeEstRejectResAndReleaseSMContext(smContext,
+// 			nasMessage.Cause5GSMNetworkFailure,
+// 			&Nsmf_PDUSession.NetworkFailure)
+// 	}
+// 	smContext.SMPolicyID = smPolicyID
+
+// 	// Update SessionRule from decision
+// 	if err := smContext.ApplySessionRules(smPolicyDecision); err != nil {
+// 		smContext.Log.Errorf("PDUSessionSMContextCreate err: %v", err)
+// 		return makeEstRejectResAndReleaseSMContext(smContext,
+// 			nasMessage.Cause5GSMRequestRejectedUnspecified,
+// 			&Nsmf_PDUSession.SubscriptionDenied)
+// 	}
+
+// 	if err := smContext.SelectDefaultDataPath(); err != nil {
+// 		smContext.SetState(smf_context.InActive)
+// 		smContext.Log.Errorf("PDUSessionSMContextCreate err: %v", err)
+// 		return makeEstRejectResAndReleaseSMContext(smContext,
+// 			nasMessage.Cause5GSMInsufficientResourcesForSpecificSliceAndDNN,
+// 			&Nsmf_PDUSession.InsufficientResourceSliceDnn)
+// 	}
+
+// 	if err := smContext.ApplyPccRules(smPolicyDecision); err != nil {
+// 		smContext.Log.Errorf("apply sm policy decision error: %+v", err)
+// 	}
+
+// 	// generate goroutine to handle PFCP and
+// 	// reply PDUSessionSMContextCreate rsp immediately
+// 	needUnlock = false
+// 	go func() {
+// 		defer smContext.SMLock.Unlock()
+
+// 		smContext.SendUpPathChgNotification("EARLY", SendUpPathChgEventExposureNotification)
+
+// 		ActivateUPFSession(smContext, EstHandler)
+
+// 		smContext.SendUpPathChgNotification("LATE", SendUpPathChgEventExposureNotification)
+
+// 		smContext.PostRemoveDataPath()
+// 	}()
+
+// 	response.JsonData = smContext.BuildCreatedData()
+// 	return &httpwrapper.Response{
+// 		Header: http.Header{
+// 			"Location": {smContext.Ref},
+// 		},
+// 		Status: http.StatusCreated,
+// 		Body:   response,
+// 	}
+// 	// TODO: UECM registration
+// }
+
+// New function
 func HandlePDUSessionSMContextCreate(request models.PostSmContextsRequest) *httpwrapper.Response {
-	// GSM State
-	// PDU Session Establishment Accept/Reject
 	var response models.PostSmContextsResponse
 	response.JsonData = new(models.SmContextCreatedData)
 	logger.PduSessLog.Infoln("In HandlePDUSessionSMContextCreate")
@@ -83,25 +276,20 @@ func HandlePDUSessionSMContextCreate(request models.PostSmContextsRequest) *http
 	smContext.Log.Debugf("S-NSSAI[sst: %d, sd: %s] DNN[%s]",
 		smContext.SNssai.Sst, smContext.SNssai.Sd, smContext.Dnn)
 
-	// Query UDM
-	if problemDetails, err := consumer.SendNFDiscoveryUDM(); err != nil {
-		smContext.Log.Warnf("Send NF Discovery Serving UDM Error[%v]", err)
-	} else if problemDetails != nil {
-		smContext.Log.Warnf("Send NF Discovery Serving UDM Problem[%+v]", problemDetails)
-	} else {
-		smContext.Log.Infoln("Send NF Discovery Serving UDM Successfully")
-	}
-
+	// Langsung panggil fungsi producer
 	smPlmnID := createData.Guami.PlmnId
+	smPlmnIDArray := openapi.MarshToJsonString(smPlmnID)
+	smPlmnIDString := strings.Join(smPlmnIDArray, "")
 
-	// Alih-alih membuat permintaan HTTP, langsung panggil fungsi producer
-	response, problemDetails := GetSmDataProcedure(smContext.Supi, smPlmnID, createData.Dnn, smContext.SNssai, "") // supportedFeatures, jika diperlukan, bisa ditambahkan)
+	smNssaiArray := openapi.MarshToJsonString(smContext.SNssai)
+	smNssaiString := strings.Join(smNssaiArray, "")
 
+	responseData, problemDetails := GetSmDataProcedure(smContext.Supi, smPlmnIDString, createData.Dnn, smNssaiString, "")
 	if problemDetails != nil {
 		smContext.Log.Errorln("Get SessionManagementSubscriptionData error:", problemDetails.Detail)
 	} else {
-		if response != nil {
-			smContext.DnnConfiguration = response.(map[string]models.DnnConfiguration)[smContext.Dnn]
+		if responseData != nil {
+			smContext.DnnConfiguration = responseData.(map[string]models.DnnConfiguration)[smContext.Dnn]
 			// UP Security info present in session management subscription data
 			if smContext.DnnConfiguration.UpSecurity != nil {
 				smContext.UpSecurity = smContext.DnnConfiguration.UpSecurity
@@ -215,7 +403,6 @@ func HandlePDUSessionSMContextCreate(request models.PostSmContextsRequest) *http
 		Status: http.StatusCreated,
 		Body:   response,
 	}
-	// TODO: UECM registration
 }
 
 func HandlePDUSessionSMContextUpdate(smContextRef string, body models.UpdateSmContextRequest) *httpwrapper.Response {

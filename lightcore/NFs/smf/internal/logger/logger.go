@@ -27,6 +27,7 @@ var (
 	UtilLog       *logrus.Entry
 	PolicyAuthLog *logrus.Entry
 	SdmLog        *logrus.Entry
+	DataRepoLog   *logrus.Entry
 )
 
 func init() {
@@ -50,4 +51,5 @@ func init() {
 	UtilLog = NfLog.WithField(logger_util.FieldCategory, "Util")
 	PolicyAuthLog = NfLog.WithField(logger_util.FieldCategory, "PolAuth")
 	SdmLog = NfLog.WithField(logger_util.FieldCategory, "Sdm")
+	DataRepoLog = NfLog.WithField(logger_util.FieldCategory, "DataRepo")
 }
