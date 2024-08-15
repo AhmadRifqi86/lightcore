@@ -83,6 +83,8 @@ type SMFContext struct {
 //        pcfUePool       sync.Map
         AppSessionPool  sync.Map
         PcfUePool       sync.Map
+      //From UDM
+        UdmUePool       sync.Map
 }
 
 type AMFStatusSubscriptionData struct {
@@ -102,6 +104,31 @@ type AppSessionData struct {
         EventUri string
         // related Session
         SmPolicyData *UeSmPolicyData
+}
+
+type UdmUeContext struct {
+	Supi                              string
+	Gpsi                              string
+	ExternalGroupID                   string
+	Nssai                             *models.Nssai
+	Amf3GppAccessRegistration         *models.Amf3GppAccessRegistration
+	AmfNon3GppAccessRegistration      *models.AmfNon3GppAccessRegistration
+	AccessAndMobilitySubscriptionData *models.AccessAndMobilitySubscriptionData
+	SmfSelSubsData                    *models.SmfSelectionSubscriptionData
+	UeCtxtInSmfData                   *models.UeContextInSmfData
+	TraceDataResponse                 models.TraceDataResponse
+	TraceData                         *models.TraceData
+	SessionManagementSubsData         map[string]models.SessionManagementSubscriptionData
+	SubsDataSets                      *models.SubscriptionDataSets
+	SubscribeToNotifChange            map[string]*models.SdmSubscription
+	SubscribeToNotifSharedDataChange  *models.SdmSubscription
+	PduSessionID                      string
+	UdrUri                            string
+	UdmSubsToNotify                   map[string]*models.SubscriptionDataSubscriptions
+	EeSubscriptions                   map[string]*models.EeSubscription // subscriptionID as key
+	amSubsDataLock                    sync.Mutex
+	smfSelSubsDataLock                sync.Mutex
+	SmSubsDataLock                    sync.RWMutex
 }
 
 var InfluenceDataUpdateNotifyUri=factory.PcfCallbackResUriPrefix + "/nudr-notify/influence-data"
@@ -469,3 +496,7 @@ func (c *SMFContext) SessionBinding(req *models.AppSessionContextReqData) (*UeSm
 func (c *SMFContext) GetIPv4Uri() string {
         return fmt.Sprintf("%s://%s:%d", c.URIScheme, c.RegisterIPv4, c.SBIPort)
 }
+
+
+
+//Where is my UDM function? NewUdmUe and UdmUeFindBySupi
