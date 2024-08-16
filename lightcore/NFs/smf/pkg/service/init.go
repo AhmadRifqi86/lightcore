@@ -27,6 +27,7 @@ import (
 	"github.com/free5gc/smf/pkg/factory"
 	"github.com/free5gc/util/httpwrapper"
 	logger_util "github.com/free5gc/util/logger"
+	"github.com/free5gc/util/mongoapi"
 )
 
 type SmfApp struct {
@@ -94,6 +95,13 @@ func (a *SmfApp) Start(tlsKeyLogPath string) {
 	if sbi.Tls != nil {
 		pemPath = sbi.Tls.Pem
 		keyPath = sbi.Tls.Key
+	}
+
+	config := factory.SmfConfig //ini apa ya di smf?
+	mongodb := config.Configuration.Mongodb
+	if err := mongoapi.SetMongoDB(mongodb.Name, mongodb.Url); err != nil {
+		logger.InitLog.Errorf("MongoDB start err: %+v", err)
+		return
 	}
 
 	smf_context.InitSmfContext(factory.SmfConfig)

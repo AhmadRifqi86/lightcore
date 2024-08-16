@@ -1373,7 +1373,7 @@ func GetSmDataProcedure(supi string, plmnID string, Dnn string, Snssai string, s
 	response interface{}, problemDetails *models.ProblemDetails,
 ) {
 	logger.SdmLog.Infof("getSmDataProcedure: SUPI[%s] PLMNID[%s] DNN[%s] SNssai[%s]", supi, plmnID, Dnn, Snssai)
-
+	//fmt.Println("Entering GetSmDataProcedure")
 	// Konversi Snssai menjadi models.Snssai
 	var snssaiObj models.Snssai
 	err := json.Unmarshal([]byte(Snssai), &snssaiObj)
@@ -1457,8 +1457,9 @@ func GetSmDataProcedure(supi string, plmnID string, Dnn string, Snssai string, s
 func QuerySmDataProcedure(collName string, ueId string, servingPlmnId string,
 	singleNssai models.Snssai, dnn string,
 ) *[]map[string]interface{} {
+	fmt.Println("Entering QuerySmDataProcedure")
 	filter := bson.M{"ueId": ueId, "servingPlmnId": servingPlmnId}
-
+	fmt.Println("Reflect deepEqual block")
 	if !reflect.DeepEqual(singleNssai, models.Snssai{}) {
 		if singleNssai.Sd == "" {
 			filter["singleNssai.sst"] = singleNssai.Sst
@@ -1467,12 +1468,12 @@ func QuerySmDataProcedure(collName string, ueId string, servingPlmnId string,
 			filter["singleNssai.sd"] = singleNssai.Sd
 		}
 	}
-
+	fmt.Println("EscapeDnn block")
 	if dnn != "" {
 		dnnKey := util.EscapeDnn(dnn)
 		filter["dnnConfigurations."+dnnKey] = bson.M{"$exists": true}
 	}
-
+	fmt.Println("try to get data using mongoapi.RestfulAPIGetMany")
 	sessionManagementSubscriptionDatas, err := mongoapi.RestfulAPIGetMany(collName, filter)
 	if err != nil {
 		logger.DataRepoLog.Errorf("QuerySmDataProcedure err: %+v", err)

@@ -35,8 +35,8 @@ const (
 	UdmSdmUriPrefix              = "/nudm-sdm/v1"
 	PcfSmpolicycontrolUriPrefix  = "/nsmf-smpolicycontrol/v1"
 	UpiUriPrefix                 = "/upi/v1"
-        PcfCallbackResUriPrefix      = "/nsmf-callback/v1"
-        //PcfSMpolicyCtlResUriPrefix   = "/npcf-smpolicycontrol/v1"
+	PcfCallbackResUriPrefix      = "/nsmf-callback/v1"
+	//PcfSMpolicyCtlResUriPrefix   = "/npcf-smpolicycontrol/v1"
 )
 
 type Config struct {
@@ -91,14 +91,19 @@ type Configuration struct {
 	T3591                *TimerValue          `yaml:"t3591" valid:"required"`
 	T3592                *TimerValue          `yaml:"t3592" valid:"required"`
 	NwInstFqdnEncoding   bool                 `yaml:"nwInstFqdnEncoding" valid:"type(bool),optional"`
-//        ServiceList          []Service            `yaml:"serviceList,omitempty" valid:"required"`
+	Mongodb              *Mongodb             `yaml:"mongodb" valid:"required"`
+	// ServiceList          []Service            `yaml:"serviceList,omitempty" valid:"required"`
 }
-
 
 type Logger struct {
 	Enable       bool   `yaml:"enable" valid:"type(bool)"`
 	Level        string `yaml:"level" valid:"required,in(trace|debug|info|warn|error|fatal|panic)"`
 	ReportCaller bool   `yaml:"reportCaller" valid:"type(bool)"`
+}
+
+type Mongodb struct {
+	Name string `yaml:"name" valid:"type(string),required"`
+	Url  string `yaml:"url" valid:"requrl,required"`
 }
 
 func (c *Configuration) validate() (bool, error) {
@@ -125,7 +130,7 @@ func (c *Configuration) validate() (bool, error) {
 		case serviceName == "nsmf-pdusession":
 		case serviceName == "nsmf-event-exposure":
 		case serviceName == "nsmf-oam":
-                case serviceName == "nsmf-smpolicycontrol":
+		case serviceName == "nsmf-smpolicycontrol":
 		default:
 			err := errors.New("Invalid serviceNameList[" + strconv.Itoa(index) + "]: " +
 				serviceName + ", should be nsmf-pdusession, nsmf-event-exposure or nsmf-oam.")
@@ -133,17 +138,17 @@ func (c *Configuration) validate() (bool, error) {
 		}
 	}
 
-//        if c.ServiceList != nil {
-  //              var errs govalidator.Errors
-    //            for _, v := range c.ServiceList {
-      //                  if _, err := v.validate(); err != nil {
-        //                        errs = append(errs, err)
-          //              }
-            //    }
-              //  if len(errs) > 0 {
-                //        return false, error(errs)
-                //}
-        //}
+	//        if c.ServiceList != nil {
+	//              var errs govalidator.Errors
+	//            for _, v := range c.ServiceList {
+	//                  if _, err := v.validate(); err != nil {
+	//                        errs = append(errs, err)
+	//              }
+	//    }
+	//  if len(errs) > 0 {
+	//        return false, error(errs)
+	//}
+	//}
 
 	for _, snssaiInfo := range c.SNssaiInfo {
 		if result, err := snssaiInfo.validate(); err != nil {
@@ -701,44 +706,44 @@ func (t *TimerValue) validate() (bool, error) {
 }
 
 type Service struct {
-        ServiceName string `yaml:"serviceName" valid:"required, service"`
-        SuppFeat    string `yaml:"suppFeat,omitempty" valid:"-"`
+	ServiceName string `yaml:"serviceName" valid:"required, service"`
+	SuppFeat    string `yaml:"suppFeat,omitempty" valid:"-"`
 }
 
-//Bikin fungsi validate()
-func (s *Service) validate() (bool, error){
-	govalidator.TagMap["service"] = govalidator.Validator(func(str string) bool{
+// Bikin fungsi validate()
+func (s *Service) validate() (bool, error) {
+	govalidator.TagMap["service"] = govalidator.Validator(func(str string) bool {
 		switch str {
-                //case "npcf-am-policy-control":
-                case "nsmf-smpolicycontrol":
-                //case "npcf-bdtpolicycontrol":
-                //case "npcf-policyauthorization":
-                //case "npcf-eventexposure":
-                //case "npcf-ue-policy-control":
-                default:
-                        return false
-                }
-                return true
-        })
-	if s.ServiceName == "nsmf-smpolicycontrol"{ //1
-		if sf,e := strconv.ParseUint(s.SuppFeat, 16,40); e!=nil{ //2
+		//case "npcf-am-policy-control":
+		case "nsmf-smpolicycontrol":
+		//case "npcf-bdtpolicycontrol":
+		//case "npcf-policyauthorization":
+		//case "npcf-eventexposure":
+		//case "npcf-ue-policy-control":
+		default:
+			return false
+		}
+		return true
+	})
+	if s.ServiceName == "nsmf-smpolicycontrol" { //1
+		if sf, e := strconv.ParseUint(s.SuppFeat, 16, 40); e != nil { //2
 			err := fmt.Errorf("Invalid SuppFeat: %s, range of the value should be 0~3fff", s.SuppFeat)
-                        return false, err
-		}else{ //3
+			return false, err
+		} else { //3
 			if sf2, e := strconv.ParseUint("3fff", 16, 20); e == nil { //4
-                                if sf > sf2 { //5
-                                        err := fmt.Errorf("Invalid SuppFeat: %s, range of the value should be 0~3fff", s.SuppFeat)
-                                        return false, err
-                                } //5
-                        } //4
-		}//3
-	}    //1
-        
-	if _, err := govalidator.ValidateStruct(s); err != nil {
-                return false, appendInvalid(err)
-        }
+				if sf > sf2 { //5
+					err := fmt.Errorf("Invalid SuppFeat: %s, range of the value should be 0~3fff", s.SuppFeat)
+					return false, err
+				} //5
+			} //4
+		} //3
+	} //1
 
-        return true, nil
+	if _, err := govalidator.ValidateStruct(s); err != nil {
+		return false, appendInvalid(err)
+	}
+
+	return true, nil
 }
 
 func (c *Config) GetVersion() string {
@@ -834,5 +839,3 @@ func (c *Config) GetLogReportCaller() bool {
 	}
 	return c.Logger.ReportCaller
 }
-
-
